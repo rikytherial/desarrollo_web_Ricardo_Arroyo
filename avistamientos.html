@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Listado de avistamientos - Avistamientos de Aves</title>
+        <link rel="stylesheet" href="css/estilos.css">
+    </head>
+    <body>
+
+        <header>
+            <p class="marca"><a href="index.html">Avistamientos de Aves</a></p>
+            <p class="subtitulo">Unión de Ornitólogos de Chile</p>
+
+            <nav aria-label="Navegación principal">
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="registro-voluntario.html">Registrarme como voluntario/a</a></li>
+                    <li><a href="reportar-avistamiento.html">Reportar avistamiento</a></li>
+                    <li><a href="avistamientos.html" aria-current="page">Ver avistamientos</a></li>
+                    <li><a href="estadisticas.html">Estadísticas</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            <h1>Listado de avistamientos</h1>
+
+            <p>
+                Los datos que se muestran son de ejemplo, ya que este prototipo
+                no se conecta a un servidor.
+            </p>
+
+            <section aria-labelledby="titulo-filtros">
+                <h2 id="titulo-filtros">Filtros y ordenamiento</h2>
+
+                <form id="form-filtros">
+
+                    <p class="campo">
+                        <label for="filtro-tipo">Filtrar por tipo de ave</label>
+                        <select id="filtro-tipo" name="filtro-tipo">
+                            <option value="todos">Todos los tipos</option>
+                            <option value="rapaz">Rapaz</option>
+                            <option value="acuatica">Acuática</option>
+                            <option value="passeriforme">Passeriforme (canora)</option>
+                            <option value="zancuda">Zancuda</option>
+                            <option value="marina">Marina</option>
+                            <option value="otra">Otra</option>
+                        </select>
+                    </p>
+
+                    <p class="campo">
+                        <label for="orden-campo">Ordenar por</label>
+                        <select id="orden-campo" name="orden-campo">
+                            <option value="fecha">Fecha</option>
+                            <option value="lugar">Lugar</option>
+                            <option value="nombre-ave">Nombre del ave</option>
+                        </select>
+                    </p>
+
+                    <p class="campo">
+                        <label for="orden-direccion">Dirección</label>
+                        <select id="orden-direccion" name="orden-direccion">
+                            <option value="desc">Descendente</option>
+                            <option value="asc">Ascendente</option>
+                        </select>
+                    </p>
+
+                    <p class="campo">
+                        <label for="por-pagina">Resultados por página</label>
+                        <select id="por-pagina" name="por-pagina">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                        </select>
+                    </p>
+
+                </form>
+            </section>
+
+            <section aria-labelledby="titulo-resultados">
+                <h2 id="titulo-resultados">Resultados</h2>
+
+                <p id="contador" role="status"></p>
+
+                <table>
+                    <caption>Avistamientos de aves reportados por voluntarios/a</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Hora</th>
+                            <th scope="col">Ave</th>
+                            <th scope="col">Tipo</th>
+                            <th scope="col">Lugar</th>
+                            <th scope="col">Región y comuna</th>
+                            <th scope="col">Voluntario/a</th>
+                            <th scope="col">Evidencia</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpo-tabla">
+                    </tbody>
+                </table>
+
+                <p id="sin-resultados" hidden>
+                    No hay avistamientos que coincidan con el filtro seleccionado.
+                </p>
+
+                <nav aria-label="Paginación de resultados">
+                    <p class="paginacion">
+                        <button type="button" id="btn-anterior">Anterior</button>
+                        <span id="indicador-pagina"></span>
+                        <button type="button" id="btn-siguiente">Siguiente</button>
+                    </p>
+                </nav>
+            </section>
+        </main>
+
+        <footer>
+            <p>Desarrollo de Aplicaciones Web - Ricardo Arroyo - Tarea 1.</p>
+        </footer>
+
+    </body>
+</html>
