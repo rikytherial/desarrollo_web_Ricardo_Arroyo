@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Estadisticas - Avistamientos de Aves</title>
+        <link rel="stylesheet" href="css/estilos.css">
+    </head>
+    <body>
+
+        <header>
+            <p class="marca"><a href="index.html">Avistamientos de Aves</a></p>
+            <p class="subtitulo">Unión de Ornitólogos de Chile</p>
+
+            <nav aria-label="Navegación principal">
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="registro-voluntario.html">Registrarme como voluntario/a</a></li>
+                    <li><a href="reportar-avistamiento.html">Reportar avistamiento</a></li>
+                    <li><a href="avistamientos.html">Ver avistamientos</a></li>
+                    <li><a href="estadisticas.html" aria-current="page">Estadísticas</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            <h1>Estadísticas</h1>
+
+            <p>
+                Los indicadores se calculan a partir de los datos de ejemplo del
+                prototipo. Si los datos cambian, los valores y los gráficos cambian
+                con ellos.
+            </p>
+
+            <section aria-labelledby="titulo-resumen">
+                <h2 id="titulo-resumen">Resumen general</h2>
+
+                <ul class="indicadores">
+                    <li>
+                        <p class="valor" id="total-voluntarios"></p>
+                        <p class="etiqueta">Voluntarios registrados</p>
+                    </li>
+                    <li>
+                        <p class="valor" id="total-avistamientos"></p>
+                        <p class="etiqueta">Avistamientos registrados</p>
+                    </li>
+                    <li>
+                        <p class="valor" id="total-especies"></p>
+                        <p class="etiqueta">Especies distintas</p>
+                    </li>
+                    <li>
+                        <p class="valor" id="ave-frecuente"></p>
+                        <p class="etiqueta">Ave más avistada</p>
+                    </li>
+                </ul>
+            </section>
+
+            <section aria-labelledby="titulo-tipo">
+                <h2 id="titulo-tipo">Avistamientos por tipo de ave</h2>
+
+                <dl class="grafico" id="grafico-tipo">
+                </dl>
+            </section>
+
+            <section aria-labelledby="titulo-mes">
+                <h2 id="titulo-mes">Avistamientos por mes</h2>
+
+                <dl class="grafico" id="grafico-mes">
+                </dl>
+            </section>
+
+            <section aria-labelledby="titulo-region">
+                <h2 id="titulo-region">Voluntarios por región</h2>
+
+                <table>
+                    <caption>Cantidad de voluntarios registrados en cada región</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Región</th>
+                            <th scope="col">Voluntarios</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-regiones">
+                    </tbody>
+                </table>
+            </section>
+        </main>
+
+        <footer>
+            <p>Desarrollo de Aplicaciones Web - Ricardo Arroyo - Tarea 1.</p>
+        </footer>
+
+    </body>
+</html>
