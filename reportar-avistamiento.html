@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Reportar avistamiento — Avistamientos de Aves</title>
+        <link rel="stylesheet" href="css/estilos.css">
+    </head>
+    <body>
+
+        <header>
+            <p class="marca"><a href="index.html">Avistamientos de Aves</a></p>
+            <p class="subtitulo">Unión de Ornitólogos de Chile</p>
+
+            <nav aria-label="Navegación principal">
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="registro-voluntario.html">Registrarme como voluntario/a</a></li>
+                    <li><a href="reportar-avistamiento.html" aria-current="page">Reportar avistamiento</a></li>
+                    <li><a href="avistamientos.html">Ver avistamientos</a></li>
+                    <li><a href="estadisticas.html">Estadísticas</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            <h1>Reportar avistamiento</h1>
+
+            <p>
+                Esta sección es solo para voluntarios/as ya registrados.
+                Los campos marcados con <span class="obligatorio">*</span> son obligatorios.
+            </p>
+
+            <p class="mensaje-exito" id="mensaje-exito" hidden>
+                Tu avistamiento fue registrado correctamente.
+            </p>
+
+            <form id="form-avistamiento" novalidate>
+
+                <fieldset>
+                    <legend>Identificación del voluntario/a</legend>
+
+                    <p class="campo">
+                        <label for="correo-voluntario">Correo registrado <span class="obligatorio">*</span></label>
+                        <input type="email" id="correo-voluntario" name="correo-voluntario" placeholder="nombre@ejemplo.cl">
+                        <small class="ayuda">
+                            (Debe coincidir con el correo usado en tu registro).
+                        </small>
+                        <span class="error" id="error-correo-voluntario"></span>
+                    </p>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Datos del ave</legend>
+
+                    <p class="campo">
+                        <label for="tipo-ave">Tipo de ave <span class="obligatorio">*</span></label>
+                        <select id="tipo-ave" name="tipo-ave">
+                            <option value="">Seleccione tipo</option>
+                            <option value="rapaz">Rapaz</option>
+                            <option value="acuatica">Acuática</option>
+                            <option value="passeriforme">Passeriforme (canora)</option>
+                            <option value="zancuda">Zancuda</option>
+                            <option value="marina">Marina</option>
+                            <option value="otra">Otra</option>
+                        </select>
+                        <span class="error" id="error-tipo-ave"></span>
+                    </p>
+
+                    <p class="campo">
+                        <label for="nombre-ave">Nombre del ave <span class="obligatorio">*</span></label>
+                        <input type="text" id="nombre-ave" name="nombre-ave" list="aves-comunes">
+                        <datalist id="aves-comunes">
+                            <option value="Bandurria"></option>
+                            <option value="Cachaña"></option>
+                            <option value="Chincol"></option>
+                            <option value="Cisne de cuello negro"></option>
+                            <option value="Diucón"></option>
+                            <option value="Peuco"></option>
+                            <option value="Pingüino de Humboldt"></option>
+                            <option value="Queltehue"></option>
+                            <option value="Tiuque"></option>
+                            <option value="Zorzal"></option>
+                        </datalist>
+                        <small class="ayuda">
+                            Nombre común (Puedes escribir uno distinto a los de la lista).
+                        </small>
+                        <span class="error" id="error-nombre-ave"></span>
+                    </p>
+
+                    <p class="campo">
+                        <label for="cantidad">Cantidad de aves observadas</label>
+                        <input type="number" id="cantidad" name="cantidad" min="1" max="500" step="1">
+                        <small class="ayuda">(Opcional).</small>
+                        <span class="error" id="error-cantidad"></span>
+                    </p>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Lugar, fecha y hora</legend>
+
+                    <p class="campo">
+                        <label for="lugar">Lugar del avistamiento <span class="obligatorio">*</span></label>
+                        <input type="text" id="lugar" name="lugar" placeholder="Ej: Humedal de Puerto Varas">
+                        <span class="error" id="error-lugar"></span>
+                    </p>
+
+                    <p class="campo">
+                        <label for="region">Región</label>
+                        <select id="region" name="region">
+                            <option value="">Seleccione región</option>
+                        </select>
+                        <small class="ayuda">(Opcional).</small>
+                        <span class="error" id="error-region"></span>
+                    </p>
+
+                    <p class="campo">
+                        <label for="comuna">Comuna</label>
+                        <select id="comuna" name="comuna">
+                            <option value="">Seleccione comuna</option>
+                        </select>
+                        <small class="ayuda">(Opcional).</small>
+                        <span class="error" id="error-comuna"></span>
+                    </p>
+
+                    <p class="campo">
+                        <label for="fecha">Fecha <span class="obligatorio">*</span></label>
+                        <input type="date" id="fecha" name="fecha">
+                        <small class="ayuda">No puede ser futura ni anterior a 3 años.</small>
+                        <span class="error" id="error-fecha"></span>
+                    </p>
+
+                    <p class="campo">
+                        <label for="hora">Hora <span class="obligatorio">*</span></label>
+                        <input type="time" id="hora" name="hora">
+                        <small class="ayuda">Si el avistamiento fue hoy, la hora no puede ser futura.</small>
+                        <span class="error" id="error-hora"></span>
+                    </p>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Evidencia</legend>
+
+                    <p class="campo">
+                        <label for="evidencia">Foto o video del avistamiento <span class="obligatorio">*</span></label>
+                        <input type="file" id="evidencia" name="evidencia" accept="image/*,video/*">
+                        <small class="ayuda">
+                            (*Obligatorio) Formatos de imagen o video, máximo 15 MB.
+                        </small>
+                        <span class="error" id="error-evidencia"></span>
+                    </p>
+
+                    <p class="campo">
+                        <label for="descripcion">Descripción o comportamiento observado</label>
+                        <textarea id="descripcion" name="descripcion" rows="4"></textarea>
+                        <small class="ayuda">(Opcional).</small>
+                        <span class="error" id="error-descripcion"></span>
+                    </p>
+                </fieldset>
+
+                <p class="acciones">
+                    <button type="submit">Enviar avistamiento</button>
+                    <button type="reset">Limpiar formulario</button>
+                </p>
+
+            </form>
+        </main>
+
+        <footer>
+            <p>Desarrollo de Aplicaciones Web - Ricardo Arroyo - Tarea 1.</p>
+        </footer>
+
+    </body>
+</html>
