@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Registro de voluntario/a — Avistamientos de Aves</title>
+        <link rel="stylesheet" href="css/estilos.css">
+    </head>
+    <body>
+        
+        <header>
+            <p class="marca"><a href="index.html">Avistamientos de Aves</a></p>
+            <p class="subtitulo">Unión de Ornitólogos de Chile</p>
+
+            <nav aria-label="Navegación principal">
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="registro-voluntario.html" aria-current="page">Registrarme como voluntario/a</a></li>
+                    <li><a href="reportar-avistamiento.html">Reportar avistamiento</a></li>
+                    <li><a href="avistamientos.html">Ver avistamientos</a></li>
+                    <li><a href="estadisticas.html">Estadísticas</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            <h1>Registro de voluntario/a</h1>
+
+            <p>Los campos marcados con <span class="obligatorio">*</span> son obligatorios.</p>
+
+            <p class="mensaje-exito" id="mensaje-exito" hidden>
+                Tu registro fue recibido correctamente.
+            </p>
+
+            <form id="form-voluntario" novalidate>
+
+                <fieldset>
+                    <legend>Datos personales</legend>
+
+                    <p class="campo">
+                        <label for="nombre">Nombre <span class="obligatorio">*</span></label>
+                        <input type="text" id="nombre" name="nombre">
+                        <span class="error" id="error-nombre"></span>
+                    </p>
+
+                    <p class="campo">
+                        <label for="apellido">Apellido <span class="obligatorio">*</span></label>
+                        <input type="text" id="apellido" name="apellido">
+                        <span class="error" id="error-apellido"></span>
+                    </p>
+
+                    <p class="campo">
+                        <label for="rut">RUT <span class="obligatorio">*</span></label>
+                        <input type="text" id="rut" name="rut" placeholder="12.345.678-5">
+                        <small class="ayuda">Con o sin puntos y con guion.</small>
+                        <span class="error" id="error-rut"></span>
+                    </p>
+
+                    <p class="campo">
+                        <label for="fecha-nacimiento">Fecha de nacimiento</label>
+                        <input type="date" id="fecha-nacimiento" name="fecha-nacimiento">
+                        <small class="ayuda">(Opcional).</small>
+                        <span class="error" id="error-fecha-nacimiento"></span>
+                    </p>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Datos de contacto</legend>
+
+                    <p class="campo">
+                        <label for="correo">Correo electrónico <span class="obligatorio">*</span></label>
+                        <input type="email" id="correo" name="correo" placeholder="nombre@ejemplo.cl">
+                        <span class="error" id="error-correo"></span>
+                    </p>
+
+                    <p class="campo">
+                        <label for="celular">Celular <span class="obligatorio">*</span></label>
+                        <input type="tel" id="celular" name="celular" placeholder="+56 9 1234 5678">
+                        <small class="ayuda">Formato chileno (con o sin espacios).</small>
+                        <span class="error" id="error-celular"></span>
+                    </p>
+
+                    <fieldset class="opciones">
+                        <legend>Medio de contacto preferido <span class="obligatorio">*</span></legend>
+
+                        <p class="campo">
+                            <input type="radio" id="contacto-correo" name="medio-contacto" value="correo">
+                            <label for="contacto-correo">Correo electrónico</label>
+
+                            <input type="radio" id="contacto-celular" name="medio-contacto" value="celular">
+                            <label for="contacto-celular">Celular</label>
+                        </p>
+
+                        <span class="error" id="error-medio-contacto"></span>
+                    </fieldset>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Dirección postal</legend>
+
+                    <p class="campo">
+                        <label for="region">Región <span class="obligatorio">*</span></label>
+                        <select id="region" name="region">
+                            <option value="">Seleccione región</option>
+                        </select>
+                        <span class="error" id="error-region"></span>
+                    </p>
+
+                    <p class="campo">
+                        <label for="comuna">Comuna <span class="obligatorio">*</span></label>
+                        <select id="comuna" name="comuna">
+                            <option value="">Seleccione comuna</option>
+                        </select>
+                        <span class="error" id="error-comuna"></span>
+                    </p>
+
+                    <p class="campo">
+                        <label for="calle">Calle y número</label>
+                        <input type="text" id="calle" name="calle">
+                        <small class="ayuda">(Opcional).</small>
+                        <span class="error" id="error-calle"></span>
+                    </p>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Otros</legend>
+
+                    <p class="campo">
+                        <label for="motivacion">¿Por qué te interesa participar?</label>
+                        <textarea id="motivacion" name="motivacion" rows="4"></textarea>
+                        <small class="ayuda">(Opcional).</small>
+                        <span class="error" id="error-motivacion"></span>
+                    </p>
+
+                    <p class="campo">
+                        <input type="checkbox" id="consentimiento" name="consentimiento">
+                        <label for="consentimiento">
+                            Acepto que mis datos sean usados para contactarme sobre este programa
+                            <span class="obligatorio">*</span>
+                        </label>
+                        <span class="error" id="error-consentimiento"></span>
+                    </p>
+                </fieldset>
+
+                <p class="acciones">
+                    <button type="submit">Registrarme</button>
+                    <button type="reset">Limpiar formulario</button>
+                </p>
+
+            </form>
+        </main>
+
+        <footer>
+            <p>Desarrollo de Aplicaciones Web - Ricardo Arroyo - Tarea 1.</p>
+        </footer>
+
+    </body>
+</html>
