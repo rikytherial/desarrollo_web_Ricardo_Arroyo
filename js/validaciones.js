@@ -196,3 +196,118 @@ function validarTextoOpcional(valor, nombreCampo, largoMaximo) {
     }
     return "";
 }
+
+/* Validacion fecha del avistamiento */
+
+/* Devuelve la fecha actual como texto en formato AAAA-MM-DD, que es el mismo formato que entrega un input type="date". */
+function obtenerFechaHoy() {
+    const hoy = new Date();
+    const anio = hoy.getFullYear();
+    const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+    const dia = String(hoy.getDate()).padStart(2, "0");
+
+    return anio + "-" + mes + "-" + dia;
+}
+
+
+/* Valida que la fecha no sea futura ni anterior al limite de años indicado. El limite hacia atras evita registros tan antiguos que
+   ya no reflejan la poblacion actual de aves. */
+function validarFechaAvistamiento(valor, aniosHaciaAtras) {
+    if (valor === "") {
+        return "Debes indicar la fecha del avistamiento.";
+    }
+
+    const fechaHoy = obtenerFechaHoy();
+
+    if (valor > fechaHoy) {
+        return "La fecha del avistamiento no puede estar en el futuro.";
+    }
+
+    const hoy = new Date();
+    const limite = new Date();
+    limite.setFullYear(hoy.getFullYear() - aniosHaciaAtras);
+
+    const anio = limite.getFullYear();
+    const mes = String(limite.getMonth() + 1).padStart(2, "0");
+    const dia = String(limite.getDate()).padStart(2, "0");
+    const fechaLimite = anio + "-" + mes + "-" + dia;
+
+    if (valor < fechaLimite) {
+        return "La fecha no puede ser anterior a " + aniosHaciaAtras + " anios.";
+    }
+    return "";
+}
+
+
+/* Validacion hora del avistamiento */
+
+/* La hora se valida en conjunto con la fecha, pues solo si el avistamiento
+   ocurrio hoy tiene sentido comparar contra la hora actual. */
+function validarHoraAvistamiento(valorHora, valorFecha) {
+    if (valorHora === "") {
+        return "Debes indicar la hora del avistamiento.";
+    }
+
+    if (valorFecha !== obtenerFechaHoy()) {
+        return "";
+    }
+
+    const ahora = new Date();
+    const horaActual = String(ahora.getHours()).padStart(2, "0") + ":" +
+                       String(ahora.getMinutes()).padStart(2, "0");
+
+    if (valorHora > horaActual) {
+        return "La hora no puede ser posterior a la hora actual.";
+    }
+    return "";
+}
+
+
+/* Validacion numero entero en rango */
+
+function validarNumeroOpcional(valor, nombreCampo, minimo, maximo) {
+    const texto = valor.trim();
+
+    if (texto === "") {
+        return "";
+    }
+
+    const numero = Number(texto);
+
+    if (Number.isNaN(numero) === true) {
+        return nombreCampo + " debe ser un numero.";
+    }
+    if (Number.isInteger(numero) === false) {
+        return nombreCampo + " debe ser un numero entero.";
+    }
+    if (numero < minimo || numero > maximo) {
+        return nombreCampo + " debe estar entre " + minimo + " y " + maximo + ".";
+    }
+    return "";
+}
+
+
+/* Validacion archivo de evidencia */
+
+/* El atributo accept del input solo filtra el dialogo de seleccion, luego el usuario puede cambiar el filtro y elegir cualquier archivo.
+   Por eso verificamos el tipo aqui. Luego el tamaño no tiene ningun atributo HTML que lo limite. */
+function validarArchivoEvidencia(listaArchivos, tamanioMaximoMb) {
+    if (listaArchivos.length === 0) {
+        return "Debes adjuntar una foto o un video del avistamiento.";
+    }
+
+    const archivo = listaArchivos[0];
+    const esImagen = archivo.type.slice(0, 6) === "image/";
+    const esVideo = archivo.type.slice(0, 6) === "video/";
+
+    if (esImagen === false && esVideo === false) {
+        return "El archivo debe ser una imagen o un video.";
+    }
+
+    const tamanioMaximoBytes = tamanioMaximoMb * 1024 * 1024;
+
+    if (archivo.size > tamanioMaximoBytes) {
+        return "El archivo no puede superar los " + tamanioMaximoMb + " MB.";
+    }
+    return "";
+}
