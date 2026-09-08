@@ -26,27 +26,27 @@ nombres de referencia, por lo que el comando falla y finalmente la rama se nombr
 
 ## Estructura del proyecto
 
-```
-├── index.html                      Portada
-├── registro-voluntario.html        Formulario de registro de voluntario/a
-├── reportar-avistamiento.html      Formulario de reporte de avistamiento
-├── avistamientos.html              Listado con filtro, orden y paginación
-├── estadisticas.html               Indicadores y gráficos
-├── css/
-│   └── estilos.css                 Hoja de estilos única
-├── js/
-│   ├── datos.js                    Datos de ejemplo
-│   ├── regiones-comunas.js         Regiones y comunas, selectores encadenados
-│   ├── validaciones.js             Reglas de validación reutilizables
-│   ├── validacion-voluntario.js    Conector del formulario de registro
-│   ├── validacion-avistamiento.js  Conector del formulario de reporte
-│   ├── listado.js                  Filtro, ordenamiento y paginación
-│   └── estadisticas.js             Cálculo de indicadores y gráficos
-└── img/
-```
+
+ index.html                      Portada
+ registro-voluntario.html        Formulario de registro de voluntario/a
+ reportar-avistamiento.html      Formulario de reporte de avistamiento
+ avistamientos.html              Listado con filtro, orden y paginación
+ estadisticas.html               Indicadores y gráficos
+-css/
+    estilos.css                 Hoja de estilos única utilizada en el proyecto.
+-js/
+    datos.js                    Datos de ejemplo
+    regiones-comunas.js         Regiones y comunas, selectores encadenados
+    validaciones.js             Reglas de validación reutilizables
+    validacion-voluntario.js    Conector del formulario de registro
+    validacion-avistamiento.js  Conector del formulario de reporte
+    listado.js                  Filtro, ordenamiento y paginación
+    estadisticas.js             Cálculo de indicadores y gráficos
+-img/ *Finalmente no se incluyó ninguna imagen en el proyecto.
+
 
 Se usa una sola hoja de estilos porque el encabezado, la navegación y el pie son
-idénticos en las cinco páginas. Los scripts, en cambio, están separados por
+idénticos en las cinco páginas. Por otro lado, Los scripts están separados por
 responsabilidad y cada página enlaza solo los que necesita.
 
 ---
@@ -55,12 +55,10 @@ responsabilidad y cada página enlaza solo los que necesita.
 
 ### Cinco páginas separadas
 
-Un archivo HTML por cada objetivo del enunciado, más una portada. El enunciado
-indica desarrollar archivos HTML y enlazarlos entre ellos, lo que apunta a
-navegación entre documentos. El registro de voluntario y el reporte de
-avistamiento se mantienen separados porque corresponden a acciones distintas en
-el tiempo: el registro ocurre una vez, el reporte se repite por cada
-avistamiento.
+Un archivo HTML por cada objetivo del enunciado, más una portada. 
+El registro de voluntario y el reporte de avistamiento se mantienen
+separados porque corresponden a acciones distintas en el tiempo, el registro 
+ocurre una vez, el reporte se repite por cada avistamiento.
 
 ### Separación entre reglas de validación y su aplicación
 
@@ -69,15 +67,14 @@ y devuelven un mensaje de error, o cadena vacía si es válido. No acceden al DO
 Los archivos `validacion-voluntario.js` y `validacion-avistamiento.js` leen el
 formulario, invocan estas reglas y muestran los mensajes.
 
-Esta separación evita duplicar reglas que ambos formularios comparten, como la
-del correo electrónico.
+Esta separación me ayuda a evitar duplicar reglas que ambos formularios comparten, 
+como la del correo electrónico.
 
 ### Las validaciones son todas en JavaScript
 
-Los formularios llevan el atributo `novalidate`. Sin él, el navegador validaría
+Los formularios llevan el atributo `novalidate`, pues sin él, el navegador validaría
 por su cuenta los campos con `type="email"` y mostraría sus propias burbujas
-antes de ejecutar el código propio. Dado que el enunciado descarta `required`
-como validación y exige que se hagan en JavaScript, `novalidate` garantiza que
+antes de ejecutar el código propio. Luego `novalidate` garantiza que
 el control de los datos pase efectivamente por el código escrito.
 
 Los formularios validan todos sus campos antes de informar, en lugar de
@@ -86,17 +83,17 @@ una vez.
 
 ### Región y comuna son selectores encadenados
 
-Las comunas disponibles dependen de la región seleccionada. Se prefirió esta
+Las comunas disponibles dependen de la región seleccionada. Preferí esta
 solución sobre un campo de texto libre porque impide por construcción que se
 ingrese una comuna inexistente o que no corresponda a la región elegida, en
 lugar de tener que detectarlo mediante validación.
 
-Ambos `<select>` se declaran en el HTML solo con su opción vacía inicial; las
+Ambos `<select>` se declaran en el HTML solo con su opción vacía inicial, las
 regiones y comunas se definen en `js/regiones-comunas.js` y se insertan al
 cargar la página. Esto evita duplicar los datos en los dos formularios que los
 necesitan.
 
-Se incluye una selección de comunas por región y no la totalidad del país, por
+Incluí una selección de comunas por región y no la totalidad del país, por
 tratarse de un prototipo. En un sistema real este listado provendría de la base
 de datos.
 
@@ -104,74 +101,66 @@ de datos.
 
 El enunciado señala que son "los voluntarios registrados" quienes informan
 avistamientos, por lo que el formulario pide el correo de la persona que
-reporta. En un sistema real este dato provendría de la sesión iniciada.
+reporta. 
 
 ### Tipo de ave con `<select>`, nombre del ave con `<datalist>`
 
 El tipo de ave es un conjunto cerrado de seis categorías definidas por el
-sistema, por lo que corresponde un `<select>`. El nombre del ave, en cambio, no
-puede restringirse: en Chile hay cientos de especies y una lista cerrada dejaría
-fuera avistamientos válidos. Se usó `<datalist>`, que sugiere las especies más
+sistema, por lo que corresponde un `<select>`. Por otra parte, el nombre del ave
+puede restringirse. Se usó `<datalist>`, que sugiere las especies más
 comunes sin impedir escribir cualquier otro nombre.
 
 ### El archivo de evidencia se valida en JavaScript
 
 El atributo `accept` del `<input type="file">` solo filtra el diálogo de
-selección: el usuario puede cambiar el filtro y elegir cualquier archivo. Por
-eso el tipo se verifica en el código. El tamaño, además, no tiene ningún
+selección, el usuario puede cambiar el filtro y elegir cualquier archivo. Por
+eso el tipo se verifica en el código, además, el tamaño no tiene ningún
 atributo HTML que lo limite, por lo que solo puede comprobarse
 programáticamente.
 
 ### La tabla del listado contiene datos tabulares
 
-El listado de avistamientos usa `<table>` porque cada fila es un avistamiento y
-cada columna un atributo del mismo tipo en todas las filas. No se usaron tablas
-para maquetar en ninguna otra parte del sitio: los formularios y la disposición
+En el listado de avistamientos use `<table>` porque cada fila es un avistamiento y
+cada columna un atributo del mismo tipo en todas las filas. ´Decidi no usar tablas
+para maquetar en ninguna otra parte del sitio, luego los formularios y la disposición
 de las páginas se resuelven con CSS.
 
 ### Los datos que se muestran son de ejemplo
 
 El listado y las estadísticas se construyen a partir de los arreglos definidos
 en `js/datos.js`. El enunciado indica que no es necesario almacenar la
-información ingresada, por lo que los formularios no persisten nada: al enviar
-un formulario válido se muestra un mensaje de éxito en la misma página y se
-limpian los campos.
+información ingresada, por lo que al enviar un formulario válido se muestra un 
+mensaje de éxito en la misma página y se limpian los campos.
 
 ### Los indicadores se calculan, no se escriben
 
 Todos los valores numéricos de la página de estadísticas están vacíos en el HTML
-y se calculan en JavaScript a partir del mismo arreglo que alimenta el listado,
-incluido el año del gráfico mensual. Esto evita que los indicadores queden
+y los calcule en JavaScript a partir del mismo arreglo que "alimenta" el listado,
+incluido el año del gráfico mensual, evitando que los indicadores queden
 desincronizados respecto a los datos que muestran.
 
 ### Los gráficos se construyen con listas de descripción
 
 Los gráficos se arman con `<dl>`, donde cada `<dt>` es la etiqueta de una barra
-y cada `<dd>` su valor. La altura proporcional la calcula el JavaScript y se
+y cada `<dd>` su valor, la altura proporcional la calcula el JavaScript y se
 aplica como porcentaje.
-
-Se descartaron dos alternativas. Una biblioteca externa habría resuelto el
-problema en pocas líneas, pero se prefirió escribir el código propio. Y
-`<canvas>` habría dibujado el gráfico como imagen, dejando los datos fuera del
-documento: no serían seleccionables ni accesibles. Con `<dl>` la información
-sigue siendo texto y el gráfico es solo su representación visual.
 
 ### Sobre las etiquetas utilizadas
 
-El nombre del sitio en el encabezado no es un `<h1>`. El `<h1>` se reserva para
+El nombre del sitio en el encabezado no es un `<h1>`, pues el `<h1>` se reserva para
 el título propio de cada página, de modo que cada documento tenga un encabezado
 principal distinto y descriptivo. La apariencia destacada del nombre del sitio
-se resuelve por CSS.
+la resolví por CSS.
 
 Los campos de formulario se agrupan con `<p class="campo">` y no con `<div>`,
 ya que todos los elementos involucrados (`label`, `input`, `small`, `span`) son
 contenido de frase y un párrafo puede contenerlos válidamente.
 
 En cada página, el enlace de navegación correspondiente lleva
-`aria-current="page"`. Se prefirió sobre una clase CSS porque cumple la misma
+`aria-current="page"`. Lo preferí sobre una clase CSS porque cumple la misma
 función como selector de estilo, y además indica el estado a las tecnologías de
 asistencia. El contador de resultados del listado usa `role="status"` por la
-misma razón: al cambiar el filtro, el nuevo total se anuncia sin que el usuario
+misma razón, ay que al cambiar el filtro, el nuevo total se anuncia sin que el usuario
 deba navegar hasta él.
 
 El contenido generado desde JavaScript se inserta con `createElement` y
@@ -185,8 +174,8 @@ listado se distribuyen con `grid-template-columns: repeat(auto-fit, minmax(...,
 1fr))`. El navegador acomoda tantas columnas como quepan sin bajar del ancho
 mínimo indicado, por lo que el diseño se adapta solo al ancho disponible.
 
-Se usa una única media query, para pantallas bajo 600px, que resuelve lo que la
-grilla no cubre: la navegación pasa a disposición vertical y los botones ocupan
+Usé una única media query, para pantallas bajo 600px, que resuelve lo que la
+grilla no cubre, la navegación pasa a disposición vertical y los botones ocupan
 el ancho completo.
 
 Los tamaños de texto y los espaciados están en `rem`, de modo que escalen si el
