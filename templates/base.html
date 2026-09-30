@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block titulo %}Avistamientos de Aves{% endblock %}</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+    </head>
+    <body>
+
+        <header>
+            <p class="marca"><a href="{{ url_for('portada') }}">Avistamientos de Aves</a></p>
+            <p class="subtitulo">Unión de Ornitólogos de Chile</p>
+
+            <nav aria-label="Navegación principal">
+                <ul>
+                    <li><a href="{{ url_for('portada') }}"
+                           {% if activa == 'portada' %}aria-current="page"{% endif %}>Inicio</a></li>
+                    <li><a href="{{ url_for('registro_voluntario') }}"
+                           {% if activa == 'voluntario' %}aria-current="page"{% endif %}>Registrarme como voluntario/a</a></li>
+                    <li><a href="{{ url_for('reportar_avistamiento') }}"
+                           {% if activa == 'avistamiento' %}aria-current="page"{% endif %}>Reportar avistamiento</a></li>
+                    <li><a href="{{ url_for('listado_avistamientos') }}"
+                           {% if activa == 'listado' %}aria-current="page"{% endif %}>Ver avistamientos</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            {% block contenido %}{% endblock %}
+        </main>
+
+        <footer>
+            <p>Desarrollo de Aplicaciones Web - Ricardo Arroyo - Tarea 2.</p>
+        </footer>
+
+        {% block scripts %}{% endblock %}
+    </body>
+</html>
