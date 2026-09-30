@@ -13,5 +13,12 @@ desktop.ini
 *.bak
 *.tmp
 
-# Entrega comprimida (se genera al final)
+# Entrega comprimida 
 *.zip
+
+# Tarea 2
+venv/
+__pycache__/
+*.pyc
+static/uploads/*
+!static/uploads/.gitkeep    
