@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from modelo import get_session, Region, Comuna, Voluntario, Ave, Avistamiento, Registro
-from validaciones import validar_voluntario
+from validaciones import validar_voluntario, validar_avistamiento
 
 app = Flask(__name__)
 def cargar_regiones(session):
@@ -27,9 +27,22 @@ def cargar_regiones(session):
         for region in regiones
     ]
 
+def cargar_aves(session):
+    return session.scalars(select(Ave).order_by(Ave.nombre)).all()
+
+MENSAJES = {
+    "avistamiento": "Tu avistamiento fue registrado correctamente. ¡Gracias por aportar!",
+}
+
+
 @app.route("/")
 def portada():
-    return render_template("portada.html", activa="portada")
+    #El texto del mensaje NO viene de la URL, la URL solo trae una clave que
+    #se busca en un diccionario fijo del servidor. Asi entonces, un enlace manipulado
+    #no puede insertar texto ni HTML en la pagina.
+    mensaje = MENSAJES.get(request.args.get("ok", ""))
+
+    return render_template("portada.html", activa="portada", mensaje=mensaje)
 
 @app.route("/voluntario", methods=["GET", "POST"])
 def registro_voluntario():
@@ -98,9 +111,69 @@ def voluntario_registrado(voluntario_id):
             voluntario=voluntario,
         )
 
-@app.route("/avistamiento")
+@app.route("/avistamiento", methods=["GET", "POST"])
 def reportar_avistamiento():
-    return render_template("reportar-avistamiento.html", activa="avistamiento")
+    with get_session() as session:
+        regiones = cargar_regiones(session)
+        aves = cargar_aves(session)
+
+        if request.method == "GET":
+            # Si se llega desde el registro de voluntario, se precarga su correo.
+            datos = {}
+            voluntario_id = request.args.get("voluntario_id", "")
+            if voluntario_id.isdigit():
+                voluntario = session.scalars(
+                    select(Voluntario).where(Voluntario.id == int(voluntario_id))
+                ).first()
+                if voluntario is not None:
+                    datos["correo-voluntario"] = voluntario.email
+
+            return render_template(
+                "reportar-avistamiento.html",
+                activa="avistamiento",
+                regiones=regiones,
+                aves=aves,
+                datos=datos,
+                errores={},
+            )
+
+        datos, errores = validar_avistamiento(session, request.form)
+
+        if len(errores) > 0:
+            return render_template(
+                "reportar-avistamiento.html",
+                activa="avistamiento",
+                regiones=regiones,
+                aves=aves,
+                datos=datos,
+                errores=errores,
+            )
+
+        avistamiento = Avistamiento(
+            voluntario_id=datos["_voluntario"].id,
+            ave_id=datos["_ave"].id,
+            fecha_hora=datos["_fecha_hora"],
+            lugar=datos["lugar"],
+            descripcion=datos["descripcion"] if datos["descripcion"] != "" else None,
+        )
+
+        try:
+            session.add(avistamiento)
+            session.commit()
+        except Exception as error:
+            session.rollback()
+            app.logger.error("Error al insertar avistamiento: %s", error)
+            errores["general"] = "No fue posible registrar el avistamiento. Intenta nuevamente."
+            return render_template(
+                "reportar-avistamiento.html",
+                activa="avistamiento",
+                regiones=regiones,
+                aves=aves,
+                datos=datos,
+                errores=errores,
+            )
+
+        return redirect(url_for("portada", ok="avistamiento"))
 
 @app.route("/avistamientos")
 def listado_avistamientos():

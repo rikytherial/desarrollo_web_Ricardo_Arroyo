@@ -1,151 +1,143 @@
 {% extends "base.html" %}
- 
+
 {% block titulo %}Reportar avistamiento - Avistamientos de Aves{% endblock %}
- 
+
 {% block contenido %}
     <h1>Reportar avistamiento</h1>
- 
+
     <p>
         Esta sección es solo para voluntarios/as ya registrados.
         Los campos marcados con <span class="obligatorio">*</span> son obligatorios.
     </p>
- 
+
+    {% if errores %}
+        <p class="mensaje-error">
+            Revisa los campos marcados: el avistamiento no pudo registrarse.
+        </p>
+    {% endif %}
+
     <p class="mensaje-exito" id="mensaje-exito" hidden>
         Tu avistamiento fue registrado correctamente.
     </p>
- 
-    <form id="form-avistamiento" novalidate>
- 
+
+    <form id="form-avistamiento" action="{{ url_for('reportar_avistamiento') }}" method="post"
+          enctype="multipart/form-data" novalidate>
+
         <fieldset>
             <legend>Identificación del voluntario/a</legend>
- 
+
             <p class="campo">
                 <label for="correo-voluntario">Correo registrado <span class="obligatorio">*</span></label>
-                <input type="email" id="correo-voluntario" name="correo-voluntario" placeholder="nombre@ejemplo.cl">
+                <input type="email" id="correo-voluntario" name="correo-voluntario" placeholder="nombre@ejemplo.cl"
+                       value="{{ datos.get('correo-voluntario', '') }}">
                 <small class="ayuda">
                     (Debe coincidir con el correo usado en tu registro).
                 </small>
-                <span class="error" id="error-correo-voluntario"></span>
+                <span class="error" id="error-correo-voluntario">{{ errores.get('correo-voluntario', '') }}</span>
             </p>
         </fieldset>
- 
+
         <fieldset>
             <legend>Datos del ave</legend>
- 
+
             <p class="campo">
-                <label for="tipo-ave">Tipo de ave <span class="obligatorio">*</span></label>
-                <select id="tipo-ave" name="tipo-ave">
-                    <option value="">Seleccione tipo</option>
-                    <option value="rapaz">Rapaz</option>
-                    <option value="acuatica">Acuática</option>
-                    <option value="passeriforme">Passeriforme (canora)</option>
-                    <option value="zancuda">Zancuda</option>
-                    <option value="marina">Marina</option>
-                    <option value="otra">Otra</option>
+                <label for="ave">Ave observada <span class="obligatorio">*</span></label>
+                <select id="ave" name="ave">
+                    <option value="">Seleccione el ave</option>
+                    {% for ave in aves %}
+                        <option value="{{ ave.id }}" {% if datos.get('ave') == ave.id|string %}selected{% endif %}>{{ ave.nombre }}</option>
+                    {% endfor %}
                 </select>
-                <span class="error" id="error-tipo-ave"></span>
-            </p>
- 
-            <p class="campo">
-                <label for="nombre-ave">Nombre del ave <span class="obligatorio">*</span></label>
-                <input type="text" id="nombre-ave" name="nombre-ave" list="aves-comunes">
-                <datalist id="aves-comunes">
-                    <option value="Bandurria"></option>
-                    <option value="Cachaña"></option>
-                    <option value="Chincol"></option>
-                    <option value="Cisne de cuello negro"></option>
-                    <option value="Diucón"></option>
-                    <option value="Peuco"></option>
-                    <option value="Pingüino de Humboldt"></option>
-                    <option value="Queltehue"></option>
-                    <option value="Tiuque"></option>
-                    <option value="Zorzal"></option>
-                </datalist>
                 <small class="ayuda">
-                    Nombre común (Puedes escribir uno distinto a los de la lista).
+                    Catálogo de especies registradas en el sistema.
                 </small>
-                <span class="error" id="error-nombre-ave"></span>
+                <span class="error" id="error-ave">{{ errores.get('ave', '') }}</span>
             </p>
- 
+
             <p class="campo">
                 <label for="cantidad">Cantidad de aves observadas</label>
-                <input type="number" id="cantidad" name="cantidad" min="1" max="500" step="1">
+                <input type="number" id="cantidad" name="cantidad" min="1" max="500" step="1"
+                       value="{{ datos.get('cantidad', '') }}">
                 <small class="ayuda">(Opcional).</small>
-                <span class="error" id="error-cantidad"></span>
+                <span class="error" id="error-cantidad">{{ errores.get('cantidad', '') }}</span>
             </p>
         </fieldset>
- 
+
         <fieldset>
             <legend>Lugar, fecha y hora</legend>
- 
+
             <p class="campo">
                 <label for="lugar">Lugar del avistamiento <span class="obligatorio">*</span></label>
-                <input type="text" id="lugar" name="lugar" placeholder="Ej: Humedal de Puerto Varas">
-                <span class="error" id="error-lugar"></span>
+                <input type="text" id="lugar" name="lugar" placeholder="Ej: Humedal de Puerto Varas"
+                       value="{{ datos.get('lugar', '') }}">
+                <span class="error" id="error-lugar">{{ errores.get('lugar', '') }}</span>
             </p>
- 
+
             <p class="campo">
                 <label for="region">Región</label>
-                <select id="region" name="region">
+                <select id="region" name="region" data-seleccionada="{{ datos.get('region', '') }}">
                     <option value="">Seleccione región</option>
                 </select>
                 <small class="ayuda">(Opcional).</small>
-                <span class="error" id="error-region"></span>
+                <span class="error" id="error-region">{{ errores.get('region', '') }}</span>
             </p>
- 
+
             <p class="campo">
                 <label for="comuna">Comuna</label>
-                <select id="comuna" name="comuna">
+                <select id="comuna" name="comuna" data-seleccionada="{{ datos.get('comuna', '') }}">
                     <option value="">Seleccione comuna</option>
                 </select>
                 <small class="ayuda">(Opcional).</small>
-                <span class="error" id="error-comuna"></span>
+                <span class="error" id="error-comuna">{{ errores.get('comuna', '') }}</span>
             </p>
- 
+
             <p class="campo">
                 <label for="fecha">Fecha <span class="obligatorio">*</span></label>
-                <input type="date" id="fecha" name="fecha">
+                <input type="date" id="fecha" name="fecha" value="{{ datos.get('fecha', '') }}">
                 <small class="ayuda">No puede ser futura ni anterior a 3 años.</small>
-                <span class="error" id="error-fecha"></span>
+                <span class="error" id="error-fecha">{{ errores.get('fecha', '') }}</span>
             </p>
- 
+
             <p class="campo">
                 <label for="hora">Hora <span class="obligatorio">*</span></label>
-                <input type="time" id="hora" name="hora">
+                <input type="time" id="hora" name="hora" value="{{ datos.get('hora', '') }}">
                 <small class="ayuda">Si el avistamiento fue hoy, la hora no puede ser futura.</small>
-                <span class="error" id="error-hora"></span>
+                <span class="error" id="error-hora">{{ errores.get('hora', '') }}</span>
             </p>
         </fieldset>
- 
+
         <fieldset>
             <legend>Evidencia</legend>
- 
+
             <p class="campo">
-                <label for="evidencia">Foto o video del avistamiento <span class="obligatorio">*</span></label>
-                <input type="file" id="evidencia" name="evidencia" accept="image/*,video/*">
+                <label for="evidencia">Fotos o videos del avistamiento <span class="obligatorio">*</span></label>
+                <input type="file" id="evidencia" name="evidencia" accept="image/*,video/*" multiple>
                 <small class="ayuda">
-                    (*Obligatorio) Formatos de imagen o video, máximo 15 MB.
+                    (*Obligatorio) Formatos de imagen o video, máximo 15 MB por archivo.
                 </small>
-                <span class="error" id="error-evidencia"></span>
+                <span class="error" id="error-evidencia">{{ errores.get('evidencia', '') }}</span>
             </p>
- 
+
             <p class="campo">
                 <label for="descripcion">Descripción o comportamiento observado</label>
-                <textarea id="descripcion" name="descripcion" rows="4"></textarea>
+                <textarea id="descripcion" name="descripcion" rows="4">{{ datos.get('descripcion', '') }}</textarea>
                 <small class="ayuda">(Opcional).</small>
-                <span class="error" id="error-descripcion"></span>
+                <span class="error" id="error-descripcion">{{ errores.get('descripcion', '') }}</span>
             </p>
         </fieldset>
- 
+
         <p class="acciones">
             <button type="submit">Enviar avistamiento</button>
             <button type="reset">Limpiar formulario</button>
         </p>
- 
+
     </form>
 {% endblock %}
- 
+
 {% block scripts %}
+    <script>
+        const DATOS_GEOGRAFICOS = {{ regiones|tojson }};
+    </script>
     <script src="{{ url_for('static', filename='js/regiones-comunas.js') }}"></script>
     <script src="{{ url_for('static', filename='js/validaciones.js') }}"></script>
     <script src="{{ url_for('static', filename='js/validacion-avistamiento.js') }}"></script>

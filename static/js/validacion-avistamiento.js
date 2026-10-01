@@ -32,19 +32,15 @@ function validarFormularioAvistamiento() {
     mostrarErrorAvistamiento("correo-voluntario", errorCorreo);
     if (errorCorreo !== "") { hayErrores = true; }
 
-    const errorTipoAve = validarSeleccion(obtenerValorAvistamiento("tipo-ave"), "el tipo de ave");
-    mostrarErrorAvistamiento("tipo-ave", errorTipoAve);
-    if (errorTipoAve !== "") { hayErrores = true; }
-
-    const errorNombreAve = validarTextoObligatorio(obtenerValorAvistamiento("nombre-ave"), "el nombre del ave", 2, 60);
-    mostrarErrorAvistamiento("nombre-ave", errorNombreAve);
-    if (errorNombreAve !== "") { hayErrores = true; }
+    const errorAve = validarSeleccion(obtenerValorAvistamiento("ave"), "el ave observada");
+    mostrarErrorAvistamiento("ave", errorAve);
+    if (errorAve !== "") { hayErrores = true; }
 
     const errorCantidad = validarNumeroOpcional(obtenerValorAvistamiento("cantidad"), "La cantidad", 1, 500);
     mostrarErrorAvistamiento("cantidad", errorCantidad);
     if (errorCantidad !== "") { hayErrores = true; }
 
-    const errorLugar = validarTextoObligatorio(obtenerValorAvistamiento("lugar"), "el lugar", 3, 100);
+    const errorLugar = validarTextoObligatorio(obtenerValorAvistamiento("lugar"), "el lugar", 3, 200);
     mostrarErrorAvistamiento("lugar", errorLugar);
     if (errorLugar !== "") { hayErrores = true; }
 
@@ -88,16 +84,10 @@ function iniciarFormularioAvistamiento() {
     }
 
     formulario.addEventListener("submit", function (evento) {
-        evento.preventDefault();
-
         const mensajeExito = document.getElementById("mensaje-exito");
 
-        if (validarFormularioAvistamiento() === true) {
-            mensajeExito.hidden = false;
-            formulario.reset();
-            document.getElementById("comuna").selectedIndex = 0;
-            mensajeExito.scrollIntoView();
-        } else {
+        if (validarFormularioAvistamiento() === false) {
+            evento.preventDefault();
             mensajeExito.hidden = true;
         }
     });
