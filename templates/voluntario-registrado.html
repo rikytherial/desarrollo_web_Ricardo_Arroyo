@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block titulo %}Registro completado - Avistamientos de Aves{% endblock %}
+
+{% block contenido %}
+    <h1>Registro completado</h1>
+
+    <p class="mensaje-exito">
+        Tu registro fue recibido correctamente, {{ voluntario.nombre }}.
+        Quedaste asociado a la comuna de {{ voluntario.comuna.nombre }}.
+    </p>
+
+    <section>
+        <h2>¿Qué quieres hacer ahora?</h2>
+
+        <ul class="tarjetas">
+            <li>
+                <h3>Reportar un avistamiento</h3>
+                <p>
+                    Registra un avistamiento a tu nombre, indicando el ave, el lugar,
+                    la fecha y la hora, con sus fotos o videos.
+                </p>
+                <a href="{{ url_for('reportar_avistamiento', voluntario_id=voluntario.id) }}">Reportar avistamiento</a>
+            </li>
+            <li>
+                <h3>Volver al inicio</h3>
+                <p>
+                    Continúa navegando por el sitio y revisa los avistamientos
+                    informados por la comunidad.
+                </p>
+                <a href="{{ url_for('portada') }}">Ir a la página de inicio</a>
+            </li>
+        </ul>
+    </section>
+{% endblock %}

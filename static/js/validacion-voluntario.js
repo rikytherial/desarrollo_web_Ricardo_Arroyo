@@ -104,18 +104,13 @@ function iniciarFormularioVoluntario() {
     }
 
     formulario.addEventListener("submit", function (evento) {
-        evento.preventDefault();
-
         const mensajeExito = document.getElementById("mensaje-exito");
 
-        if (validarFormularioVoluntario() === true) {
-            mensajeExito.hidden = false;
-            formulario.reset();
-            /* reset() devuelve los campos a su estado inicial del HTML, pero las comunas fueron insertadas por JavaScript y no se
-            eliminan asi entonces devolvemos el selector a su opcion vacia. */
-            document.getElementById("comuna").selectedIndex = 0;
-            mensajeExito.scrollIntoView();
-        } else {
+        /* Si la validacion del navegador falla, se detiene el envio,
+           y si pasa, se deja que el formulario viaje al servidor, el cual
+           volvera a validar todo por su cuenta. */
+        if (validarFormularioVoluntario() === false) {
+            evento.preventDefault();
             mensajeExito.hidden = true;
         }
     });
