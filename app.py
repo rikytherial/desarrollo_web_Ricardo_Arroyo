@@ -221,19 +221,6 @@ def reportar_avistamiento():
 def listado_avistamientos():
     return render_template("avistamientos.html", activa="listado")
 
-@app.route("/prueba-modelos")
-def prueba_modelos():
-    with get_session() as session:
-        aves = session.scalars(select(Ave).order_by(Ave.nombre).limit(5)).all()
-        comuna = session.scalars(select(Comuna).where(Comuna.nombre == "Ñuñoa")).first()
-
-        salida = "<h2>Primeras 5 aves</h2><ul>"
-        for ave in aves:
-            salida += f"<li>{ave.id} - {ave.nombre}</li>"
-        salida += "</ul>"
-        salida += f"<p>Ñuñoa pertenece a: {comuna.region.nombre}</p>"
-    return salida
-
 
 @app.errorhandler(413)
 def archivo_demasiado_grande(error):
