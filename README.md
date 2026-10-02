@@ -1,201 +1,146 @@
-# Desarrollo De Aplicaciones Web — Tarea 1 
+# CC5002 - Desarrollo de Aplicaciones Web - Tarea 2
 
-Prototipo del sistema de gestión de avistamientos de aves para la Unión de
-Ornitólogos de Chile.
+Ricardo Arroyo Santibáñez
 
-- **Autor:** Ricardo Arroyo
-- **Curso:** CC5002 — Desarrollo de Aplicaciones Web
-- **Profesor:** José Urzúa
-- **Rama de entrega:** `Tarea_1`
+Sitio para registrar avistamientos de aves de la Unión de Ornitólogos de Chile,
+hecho con Python, Flask, SQLAlchemy y MySQL. Reutiliza el HTML, CSS y
+JavaScript que desarrollé en la Tarea 1.
 
----
+## Cómo ejecutarlo
 
-## Cómo ejecutar
+Necesita Python 3.10 o superior y MySQL Server 8 corriendo en `localhost:3306`.
 
-No requiere servidor web. Abrir `index.html` directamente en el navegador. Las
-páginas están enlazadas entre sí mediante rutas relativas.
+1. Crear la base de datos y cargar los datos, en este orden:
 
----
+```
+mysql -u root -p < sql/tarea2.sql
+mysql -u root -p tarea2 < sql/region-comuna.sql
+mysql -u root -p tarea2 < sql/aves.sql
+```
 
-## Nombre de la rama
+2. Crear el entorno virtual e instalar las dependencias:
 
-El enunciado solicita una rama llamada `Tarea 1`. Pero me fije que Git no admite espacios en los
-nombres de referencia, por lo que el comando falla y finalmente la rama se nombró **`Tarea_1`**.
+```
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+```
 
----
+3. Levantar la aplicación con `python app.py`. Queda en `http://localhost:5000`.
 
-## Estructura del proyecto
+Usa las credenciales que indica el enunciado: base `tarea2`, usuario `cc5002`,
+contraseña `programacionweb`.
 
+## Estructura
 
- index.html                      Portada
- registro-voluntario.html        Formulario de registro de voluntario/a
- reportar-avistamiento.html      Formulario de reporte de avistamiento
- avistamientos.html              Listado con filtro, orden y paginación
- estadisticas.html               Indicadores y gráficos
--css/
-    estilos.css                 Hoja de estilos única utilizada en el proyecto.
--js/
-    datos.js                    Datos de ejemplo
-    regiones-comunas.js         Regiones y comunas, selectores encadenados
-    validaciones.js             Reglas de validación reutilizables
-    validacion-voluntario.js    Conector del formulario de registro
-    validacion-avistamiento.js  Conector del formulario de reporte
-    listado.js                  Filtro, ordenamiento y paginación
-    estadisticas.js             Cálculo de indicadores y gráficos
--img/ *Finalmente no se incluyó ninguna imagen en el proyecto.
+```
+app.py             rutas de Flask
+modelo.py          modelos SQLAlchemy de las seis tablas
+validaciones.py    validaciones del lado del servidor
+archivos.py        validación y guardado de los archivos subidos
+templates/         plantillas Jinja2
+static/            CSS, JavaScript y archivos subidos
+sql/               scripts de creación y carga de datos
+```
 
+## Decisiones que tomé
 
-Se usa una sola hoja de estilos porque el encabezado, la navegación y el pie son
-idénticos en las cinco páginas. Por otro lado, Los scripts están separados por
-responsabilidad y cada página enlaza solo los que necesita.
+**1. El tipo de ave lo reemplacé por el catálogo de la base de datos.**
+En la Tarea 1 pedía el tipo de ave (rapaz, acuática, etc.) y el nombre como
+texto libre. La tabla `ave` solo tiene `id` y `nombre`, sin clasificación por
+tipo, y `avistamiento` guarda `ave_id`. Junté los dos campos en un solo
+selector con las 585 especies que vienen en `aves.sql`.
 
----
+**2. Los campos que no tienen columna los valido igual, pero no los guardo.**
+Mantuve el formulario completo de la Tarea 1 porque el enunciado lo pide, pero
+el modelo no tiene dónde guardar todo. Apliqué la misma regla en los dos
+formularios: si el campo no tiene columna, igual se valida en el servidor y
+después se descarta. Esto afecta a RUT, fecha de nacimiento, medio de contacto,
+calle, motivación y consentimiento en el registro de voluntario, y a cantidad
+de aves, región y comuna en el de avistamiento.
 
-## Decisiones a tener en cuenta para la corrección
+**3. Nombre y apellido van juntos, y el teléfono normalizado.**
+La tabla `voluntario` tiene una sola columna `nombre`, así que concateno ambos
+campos. El celular lo guardo como `+56912345678` porque `telefono` es
+`VARCHAR(15)` y el formato que escribe el usuario (`+56 9 1234 5678`) ocupa 17
+caracteres. La fecha y la hora del avistamiento también las combino, porque el
+formulario las pide por separado y la columna es `DATETIME`.
 
-### Cinco páginas separadas
+**4. Las regiones y comunas ahora salen de la base.**
+En la Tarea 1 estaban escritas dentro del archivo JavaScript. Ahora Flask las
+consulta y se las pasa a la plantilla, que las entrega al JavaScript que arma
+los selectores. El `value` de cada opción es el `id` de MySQL, no el nombre,
+porque es lo que necesita la llave foránea `comuna_id`.
 
-Un archivo HTML por cada objetivo del enunciado, más una portada. 
-El registro de voluntario y el reporte de avistamiento se mantienen
-separados porque corresponden a acciones distintas en el tiempo, el registro 
-ocurre una vez, el reporte se repite por cada avistamiento.
+**5. Repetí todas las validaciones en el servidor.**
+El JavaScript de la Tarea 1 quedó igual, pero ahora es solo comodidad para el
+usuario: se puede desactivar, o se puede mandar el POST sin pasar por el
+formulario. Por eso el servidor vuelve a validar todo desde cero. Si algo
+falla, devuelvo el formulario con los datos que la persona ya había escrito y
+los mensajes en los mismos elementos que usa el JavaScript, para que se vea
+igual venga el error de donde venga.
 
-### Separación entre reglas de validación y su aplicación
+**6. Hay validaciones que solo puede hacer el servidor.**
+El cliente no tiene forma de comprobarlas, así que las agregué: que la comuna
+exista y además pertenezca a la región elegida, que el ave exista en el
+catálogo, y que el correo del avistamiento corresponda a un voluntario ya
+registrado.
 
-`js/validaciones.js` contiene las reglas como funciones puras: reciben un valor
-y devuelven un mensaje de error, o cadena vacía si es válido. No acceden al DOM.
-Los archivos `validacion-voluntario.js` y `validacion-avistamiento.js` leen el
-formulario, invocan estas reglas y muestran los mensajes.
+**7. Los parámetros de la URL pasan por listas blancas.**
+En el listado reviso `ave`, `orden`, `direccion`, `por_pagina` y `pagina`
+contra valores permitidos. El criterio de ordenamiento nunca lo meto en el SQL
+como texto: lo traduzco con un diccionario a una columna del modelo. Si llega
+algo raro, uso el valor por defecto en vez de mostrar un error. El mensaje de
+confirmación de la portada funciona igual: la URL solo trae una clave
+(`/?ok=avistamiento`) y el texto sale de un diccionario del servidor, así nadie
+puede inyectar contenido con un enlace armado a mano.
 
-Esta separación me ayuda a evitar duplicar reglas que ambos formularios comparten, 
-como la del correo electrónico.
+**8. Los archivos los reviso por contenido, no por extensión.**
+Uso la librería `filetype`, que mira los primeros bytes (magic numbers), porque
+cualquiera puede renombrar un ejecutable a `.jpg`. Acepto JPEG, PNG, GIF, WebP,
+MP4, QuickTime, WebM y AVI, con un máximo de 15 MB por archivo y 5 archivos por
+avistamiento. Además configuré `MAX_CONTENT_LENGTH` para que Flask corte las
+peticiones demasiado grandes antes de procesarlas.
 
-### Las validaciones son todas en JavaScript
+**9. El nombre del archivo lo genera el servidor.**
+En disco quedan con un nombre aleatorio (`secrets.token_hex`) más la extensión
+que corresponde al contenido real, y el nombre original del usuario lo guardo
+como texto en `nombre_archivo` solo para mostrarlo. Así evito que se
+sobrescriban archivos, que entren caracteres raros, o que alguien use algo como
+`../../` para escribir fuera de la carpeta.
 
-Los formularios llevan el atributo `novalidate`, pues sin él, el navegador validaría
-por su cuenta los campos con `type="email"` y mostraría sus propias burbujas
-antes de ejecutar el código propio. Luego `novalidate` garantiza que
-el control de los datos pase efectivamente por el código escrito.
+**10. Primero escribo los archivos, después inserto, y si algo falla borro.**
+El avistamiento y todos sus `registro` se insertan en una sola transacción: uso
+la relación del modelo para que SQLAlchemy inserte el avistamiento, tome el
+`id` que generó MySQL y se lo ponga a cada registro, con un solo `commit`. Si
+la inserción falla, hago `rollback` y borro los archivos que ya había escrito.
+De esa forma nunca quedan filas apuntando a archivos que no existen, ni
+archivos sueltos ocupando espacio. Los guardo en `static/uploads/`, carpeta que
+está versionada con un `.gitkeep` pero cuyo contenido no se sube al repo.
 
-Los formularios validan todos sus campos antes de informar, en lugar de
-detenerse en el primer error, de modo que el usuario vea todos los problemas de
-una vez.
+**11. El listado pagina en el servidor.**
+Uso `LIMIT` y `OFFSET` más una consulta de conteo, en vez de traer todos los
+avistamientos al navegador como hacía en la Tarea 1 con los datos de ejemplo.
+Los filtros van por GET, así la URL queda compartible y los botones de
+paginación son simplemente enlaces que mantienen los filtros. Como ya no hace
+falta JavaScript, eliminé `datos.js` y `listado.js`. En el filtro por ave
+muestro solo las especies que tienen al menos un avistamiento, no las 585.
+Saqué las columnas "Tipo" y "Región y comuna" de la tabla por lo que explico en
+la decisión 2. Para entrar al detalle puse un enlace "Ver detalle" en la última
+columna en vez de un clic sobre la fila completa, porque así funciona con
+teclado y sin JavaScript, y el HTML queda válido.
 
-### Región y comuna son selectores encadenados
+**12. Los últimos avistamientos de la portada van por `id`, no por fecha.**
+El enunciado pide los últimos *agregados a la base*, que no es lo mismo que los
+más recientes según la fecha del avistamiento: alguien puede registrar hoy algo
+que vio hace meses. Por eso ordeno por `id` descendente.
 
-Las comunas disponibles dependen de la región seleccionada. Preferí esta
-solución sobre un campo de texto libre porque impide por construcción que se
-ingrese una comuna inexistente o que no corresponda a la región elegida, en
-lugar de tener que detectarlo mediante validación.
+## Notas
 
-Ambos `<select>` se declaran en el HTML solo con su opción vacía inicial, las
-regiones y comunas se definen en `js/regiones-comunas.js` y se insertan al
-cargar la página. Esto evita duplicar los datos en los dos formularios que los
-necesitan.
-
-Incluí una selección de comunas por región y no la totalidad del país, por
-tratarse de un prototipo. En un sistema real este listado provendría de la base
-de datos.
-
-### El reporte de avistamiento identifica al voluntario
-
-El enunciado señala que son "los voluntarios registrados" quienes informan
-avistamientos, por lo que el formulario pide el correo de la persona que
-reporta. 
-
-### Tipo de ave con `<select>`, nombre del ave con `<datalist>`
-
-El tipo de ave es un conjunto cerrado de seis categorías definidas por el
-sistema, por lo que corresponde un `<select>`. Por otra parte, el nombre del ave
-puede restringirse. Se usó `<datalist>`, que sugiere las especies más
-comunes sin impedir escribir cualquier otro nombre.
-
-### El archivo de evidencia se valida en JavaScript
-
-El atributo `accept` del `<input type="file">` solo filtra el diálogo de
-selección, el usuario puede cambiar el filtro y elegir cualquier archivo. Por
-eso el tipo se verifica en el código, además, el tamaño no tiene ningún
-atributo HTML que lo limite, por lo que solo puede comprobarse
-programáticamente.
-
-### La tabla del listado contiene datos tabulares
-
-En el listado de avistamientos use `<table>` porque cada fila es un avistamiento y
-cada columna un atributo del mismo tipo en todas las filas. ´Decidi no usar tablas
-para maquetar en ninguna otra parte del sitio, luego los formularios y la disposición
-de las páginas se resuelven con CSS.
-
-### Los datos que se muestran son de ejemplo
-
-El listado y las estadísticas se construyen a partir de los arreglos definidos
-en `js/datos.js`. El enunciado indica que no es necesario almacenar la
-información ingresada, por lo que al enviar un formulario válido se muestra un 
-mensaje de éxito en la misma página y se limpian los campos.
-
-### Los indicadores se calculan, no se escriben
-
-Todos los valores numéricos de la página de estadísticas están vacíos en el HTML
-y los calcule en JavaScript a partir del mismo arreglo que "alimenta" el listado,
-incluido el año del gráfico mensual, evitando que los indicadores queden
-desincronizados respecto a los datos que muestran.
-
-### Los gráficos se construyen con listas de descripción
-
-Los gráficos se arman con `<dl>`, donde cada `<dt>` es la etiqueta de una barra
-y cada `<dd>` su valor, la altura proporcional la calcula el JavaScript y se
-aplica como porcentaje.
-
-### Sobre las etiquetas utilizadas
-
-El nombre del sitio en el encabezado no es un `<h1>`, pues el `<h1>` se reserva para
-el título propio de cada página, de modo que cada documento tenga un encabezado
-principal distinto y descriptivo. La apariencia destacada del nombre del sitio
-la resolví por CSS.
-
-Los campos de formulario se agrupan con `<p class="campo">` y no con `<div>`,
-ya que todos los elementos involucrados (`label`, `input`, `small`, `span`) son
-contenido de frase y un párrafo puede contenerlos válidamente.
-
-En cada página, el enlace de navegación correspondiente lleva
-`aria-current="page"`. Lo preferí sobre una clase CSS porque cumple la misma
-función como selector de estilo, y además indica el estado a las tecnologías de
-asistencia. El contador de resultados del listado usa `role="status"` por la
-misma razón, ay que al cambiar el filtro, el nuevo total se anuncia sin que el usuario
-deba navegar hasta él.
-
-El contenido generado desde JavaScript se inserta con `createElement` y
-`textContent`, no con `innerHTML`, para que los datos se traten como texto y no
-se interpreten como HTML.
-
-### Diseño responsive
-
-Las tarjetas de la portada, los indicadores de estadísticas y los filtros del
-listado se distribuyen con `grid-template-columns: repeat(auto-fit, minmax(...,
-1fr))`. El navegador acomoda tantas columnas como quepan sin bajar del ancho
-mínimo indicado, por lo que el diseño se adapta solo al ancho disponible.
-
-Usé una única media query, para pantallas bajo 600px, que resuelve lo que la
-grilla no cubre, la navegación pasa a disposición vertical y los botones ocupan
-el ancho completo.
-
-Los tamaños de texto y los espaciados están en `rem`, de modo que escalen si el
-usuario aumenta el tamaño de letra en su navegador.
-
----
-
-## Reglas de validación
-
-Los campos obligatorios están marcados con asterisco en cada formulario.
-
-Las validaciones de comuna respecto de región, y de hora respecto de fecha, son
-cruzadas, es decir, dependen del valor de otro campo del mismo formulario.
-
-Los campos de texto se validan aplicando `trim()`, de modo que un campo con solo
-espacios se trate como vacío.
-
----
-
-## Validación W3C
-
-HTML5 y CSS3 validados sin errores con los validadores del W3C
-(`validator.w3.org` y `jigsaw.w3.org/css-validator`) el 03/09/2026.
+- La opción "Estadísticas" está en el menú y en la portada como pide el
+  enunciado, pero al entrar avisa que los indicadores quedan para la siguiente
+  tarea.
+- A `region-comuna.sql` y `aves.sql` les agregué `USE tarea2;` al comienzo,
+  porque los originales no indican a qué base de datos van.
+- Las páginas generadas y la hoja de estilos pasan los validadores de HTML y
+  CSS de W3C sin errores.
