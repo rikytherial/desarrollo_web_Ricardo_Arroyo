@@ -112,7 +112,7 @@ section{
 
 fieldset {
     border: 1px solid #d6ded0;
-    border: 6px;
+    border-radius: 6px;
     margin-bottom: 1.5rem;
     padding: 1rem;
     background-color: #ffffff;
@@ -268,7 +268,7 @@ th, td {
     vertical-align: top;
 }
 
-thead td {
+thead th {
     background-color: #e8f5e9;
     color: #1b5e20;
 }
@@ -279,11 +279,37 @@ tbody tr:hover {
 
 /* Estilo de la paginación */
 
+/* Estilo de la paginación */
+
 .paginacion {
     display: flex;
     align-items: center;
     gap: 1rem;
     margin-top: 1rem;
+}
+
+/* Los controles son enlaces dentro de un <nav>, por lo que heredarían el
+   blanco pensado para el menú de la cabecera, entonces se les define su propio estilo. */
+.paginacion a {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    color: #1b5e20;
+    background-color: #ffffff;
+    border: 1px solid #1b5e20;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.paginacion a:hover,
+.paginacion a:focus {
+    background-color: #e8f5e9;
+}
+
+.paginacion .deshabilitado {
+    padding: 0.5rem 1rem;
+    color: #9aa395;
+    border: 1px solid #d6ded0;
+    border-radius: 4px;
 }
 
 /* Diseño sección Estadisticas */
@@ -377,7 +403,7 @@ footer {
         padding: 1rem;
     }
 
-    nav-ul {
+    nav ul {
         flex-direction: column;
     }
     
