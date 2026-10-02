@@ -8,45 +8,46 @@
     <section aria-labelledby="titulo-filtros">
         <h2 id="titulo-filtros">Filtros y ordenamiento</h2>
 
-        <form id="form-filtros">
+        <form id="form-filtros" action="{{ url_for('listado_avistamientos') }}" method="get">
 
             <p class="campo">
-                <label for="filtro-tipo">Filtrar por tipo de ave</label>
-                <select id="filtro-tipo" name="filtro-tipo">
-                    <option value="todos">Todos los tipos</option>
-                    <option value="rapaz">Rapaz</option>
-                    <option value="acuatica">Acuática</option>
-                    <option value="passeriforme">Passeriforme (canora)</option>
-                    <option value="zancuda">Zancuda</option>
-                    <option value="marina">Marina</option>
-                    <option value="otra">Otra</option>
+                <label for="ave">Filtrar por ave</label>
+                <select id="ave" name="ave">
+                    <option value="todas">Todas las aves</option>
+                    {% for ave in aves_con_avistamientos %}
+                        <option value="{{ ave.id }}" {% if filtros.ave == ave.id|string %}selected{% endif %}>{{ ave.nombre }}</option>
+                    {% endfor %}
                 </select>
             </p>
 
             <p class="campo">
-                <label for="orden-campo">Ordenar por</label>
-                <select id="orden-campo" name="orden-campo">
-                    <option value="fecha">Fecha</option>
-                    <option value="lugar">Lugar</option>
-                    <option value="nombreAve">Nombre del ave</option>
+                <label for="orden">Ordenar por</label>
+                <select id="orden" name="orden">
+                    <option value="fecha" {% if filtros.orden == 'fecha' %}selected{% endif %}>Fecha</option>
+                    <option value="lugar" {% if filtros.orden == 'lugar' %}selected{% endif %}>Lugar</option>
+                    <option value="ave" {% if filtros.orden == 'ave' %}selected{% endif %}>Nombre del ave</option>
                 </select>
             </p>
 
             <p class="campo">
-                <label for="orden-direccion">Dirección</label>
-                <select id="orden-direccion" name="orden-direccion">
-                    <option value="desc">Descendente</option>
-                    <option value="asc">Ascendente</option>
+                <label for="direccion">Dirección</label>
+                <select id="direccion" name="direccion">
+                    <option value="desc" {% if filtros.direccion == 'desc' %}selected{% endif %}>Descendente</option>
+                    <option value="asc" {% if filtros.direccion == 'asc' %}selected{% endif %}>Ascendente</option>
                 </select>
             </p>
 
             <p class="campo">
-                <label for="por-pagina">Resultados por página</label>
-                <select id="por-pagina" name="por-pagina">
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="20">20</option>
+                <label for="por_pagina">Resultados por página</label>
+                <select id="por_pagina" name="por_pagina">
+                    <option value="5" {% if filtros.por_pagina == 5 %}selected{% endif %}>5</option>
+                    <option value="10" {% if filtros.por_pagina == 10 %}selected{% endif %}>10</option>
+                    <option value="20" {% if filtros.por_pagina == 20 %}selected{% endif %}>20</option>
                 </select>
+            </p>
+
+            <p class="acciones">
+                <button type="submit">Aplicar</button>
             </p>
 
         </form>
@@ -55,41 +56,61 @@
     <section aria-labelledby="titulo-resultados">
         <h2 id="titulo-resultados">Resultados</h2>
 
-        <p id="contador" role="status"></p>
-
-        <table>
-            <caption>Avistamientos de aves reportados por voluntarios/a</caption>
-            <thead>
-                <tr>
-                    <th scope="col">Fecha</th>
-                    <th scope="col">Hora</th>
-                    <th scope="col">Ave</th>
-                    <th scope="col">Tipo</th>
-                    <th scope="col">Lugar</th>
-                    <th scope="col">Región y comuna</th>
-                    <th scope="col">Voluntario/a</th>
-                    <th scope="col">Evidencia</th>
-                </tr>
-            </thead>
-            <tbody id="cuerpo-tabla">
-            </tbody>
-        </table>
-
-        <p id="sin-resultados" hidden>
-            No hay avistamientos que coincidan con el filtro seleccionado.
+        <p id="contador" role="status">
+            {{ total }} avistamiento{{ '' if total == 1 else 's' }} en total.
+            Página {{ filtros.pagina }} de {{ total_paginas }}.
         </p>
+
+        {% if avistamientos %}
+            <table>
+                <caption>Avistamientos de aves reportados por voluntarios/as</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Hora</th>
+                        <th scope="col">Ave</th>
+                        <th scope="col">Lugar</th>
+                        <th scope="col">Voluntario/a</th>
+                        <th scope="col">Evidencia</th>
+                        <th scope="col">Detalle</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpo-tabla">
+                    {% for avistamiento in avistamientos %}
+                        <tr>
+                            <td>{{ avistamiento.fecha_hora.strftime('%d-%m-%Y') }}</td>
+                            <td>{{ avistamiento.fecha_hora.strftime('%H:%M') }}</td>
+                            <td>{{ avistamiento.ave.nombre }}</td>
+                            <td>{{ avistamiento.lugar }}</td>
+                            <td>{{ avistamiento.voluntario.nombre }}</td>
+                            <td>{{ avistamiento.registros|length }} archivo{{ '' if avistamiento.registros|length == 1 else 's' }}</td>
+                            <td><a href="{{ url_for('detalle_avistamiento', avistamiento_id=avistamiento.id) }}">Ver detalle</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p id="sin-resultados">
+                No hay avistamientos que coincidan con el filtro seleccionado.
+            </p>
+        {% endif %}
 
         <nav aria-label="Paginación de resultados">
             <p class="paginacion">
-                <button type="button" id="btn-anterior">Anterior</button>
-                <span id="indicador-pagina"></span>
-                <button type="button" id="btn-siguiente">Siguiente</button>
+                {% if filtros.pagina > 1 %}
+                    <a href="{{ url_for('listado_avistamientos', ave=filtros.ave, orden=filtros.orden, direccion=filtros.direccion, por_pagina=filtros.por_pagina, pagina=filtros.pagina - 1) }}">Anterior</a>
+                {% else %}
+                    <span class="deshabilitado">Anterior</span>
+                {% endif %}
+
+                <span id="indicador-pagina">Página {{ filtros.pagina }} de {{ total_paginas }}</span>
+
+                {% if filtros.pagina < total_paginas %}
+                    <a href="{{ url_for('listado_avistamientos', ave=filtros.ave, orden=filtros.orden, direccion=filtros.direccion, por_pagina=filtros.por_pagina, pagina=filtros.pagina + 1) }}">Siguiente</a>
+                {% else %}
+                    <span class="deshabilitado">Siguiente</span>
+                {% endif %}
             </p>
         </nav>
     </section>
-{% endblock %}
-
-{% block scripts %}
-    <script src="{{ url_for('static', filename='js/datos.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/listado.js') }}"></script>
 {% endblock %}

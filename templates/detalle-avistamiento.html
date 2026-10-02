@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block titulo %}Avistamiento de {{ avistamiento.ave.nombre }} - Avistamientos de Aves{% endblock %}
+
+{% block contenido %}
+    <h1>Avistamiento de {{ avistamiento.ave.nombre }}</h1>
+
+    <section aria-labelledby="titulo-datos">
+        <h2 id="titulo-datos">Datos del avistamiento</h2>
+
+        <dl class="detalle">
+            <dt>Ave</dt>
+            <dd>{{ avistamiento.ave.nombre }}</dd>
+
+            <dt>Fecha</dt>
+            <dd>{{ avistamiento.fecha_hora.strftime('%d-%m-%Y') }}</dd>
+
+            <dt>Hora</dt>
+            <dd>{{ avistamiento.fecha_hora.strftime('%H:%M') }}</dd>
+
+            <dt>Lugar</dt>
+            <dd>{{ avistamiento.lugar }}</dd>
+
+            <dt>Voluntario/a</dt>
+            <dd>{{ avistamiento.voluntario.nombre }}</dd>
+
+            <dt>Comuna del voluntario/a</dt>
+            <dd>{{ avistamiento.voluntario.comuna.nombre }}, {{ avistamiento.voluntario.comuna.region.nombre }}</dd>
+
+            <dt>Descripción</dt>
+            <dd>
+                {% if avistamiento.descripcion %}
+                    {{ avistamiento.descripcion }}
+                {% else %}
+                    Sin descripción.
+                {% endif %}
+            </dd>
+        </dl>
+    </section>
+
+    <section aria-labelledby="titulo-evidencia">
+        <h2 id="titulo-evidencia">Fotos y videos</h2>
+
+        {% if medios %}
+            <ul class="galeria">
+                {% for medio in medios %}
+                    <li>
+                        {% if medio.es_video %}
+                            <video controls width="320">
+                                <source src="{{ medio.url }}">
+                                Tu navegador no puede reproducir este video.
+                            </video>
+                        {% else %}
+                            <img src="{{ medio.url }}" alt="Evidencia del avistamiento de {{ avistamiento.ave.nombre }}" width="320">
+                        {% endif %}
+                        <p class="nombre-archivo">{{ medio.nombre }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Este avistamiento no tiene archivos asociados.</p>
+        {% endif %}
+    </section>
+
+    <p><a href="{{ url_for('listado_avistamientos') }}">Volver al listado</a></p>
+{% endblock %}

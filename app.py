@@ -1,9 +1,11 @@
 from datetime import datetime
 
 from flask import Flask, render_template, request, redirect, url_for, abort
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
+from sqlalchemy import select, func
+from sqlalchemy.orm import selectinload, joinedload
 import os
+from math import ceil
+
 from archivos import validar_archivos, guardar_archivos, eliminar_archivos
 from modelo import get_session, Region, Comuna, Voluntario, Ave, Avistamiento, Registro
 from validaciones import validar_voluntario, validar_avistamiento
@@ -18,6 +20,7 @@ CARPETA_SUBIDAS = os.path.join(app.root_path, "static", "uploads")
 app.config["MAX_CONTENT_LENGTH"] = 80 * 1024 * 1024
 
 
+#Funciones Auxiliares:
 def cargar_regiones(session):
     """Fucnión axuiliar con la cual buscamos entregar las regiones con sus comunas,
     en el formato que espera el JavaScript que arma los selectores."""
@@ -44,15 +47,74 @@ MENSAJES = {
     "avistamiento": "Tu avistamiento fue registrado correctamente. ¡Gracias por aportar!",
 }
 
+#Lista "blanca" de ordenamientos, esta traduce la palabra que llega por la URL a
+#una columna real. Luego nunca se interpola texto del usuario en el SQL.
+ORDENES = {
+    "fecha": Avistamiento.fecha_hora,
+    "lugar": Avistamiento.lugar,
+    "ave": Ave.nombre,
+}
 
+POR_PAGINA_PERMITIDOS = (5, 10, 20)
+
+
+def leer_filtros(args):
+    """Lee los parametros de la URL y descarta cualquier valor no permitido.
+
+    Si llega algo invalido o malicioso, se usa el valor por defecto en vez de
+    mostrar un error, el listado siempre debe poder desplegarse.
+    """
+    ave = args.get("ave", "todas")
+    if ave != "todas" and ave.isdigit() is False:
+        ave = "todas"
+
+    orden = args.get("orden", "fecha")
+    if orden not in ORDENES:
+        orden = "fecha"
+
+    direccion = args.get("direccion", "desc")
+    if direccion not in ("asc", "desc"):
+        direccion = "desc"
+
+    por_pagina = args.get("por_pagina", "10")
+    if por_pagina.isdigit() is False or int(por_pagina) not in POR_PAGINA_PERMITIDOS:
+        por_pagina = 10
+    else:
+        por_pagina = int(por_pagina)
+
+    pagina = args.get("pagina", "1")
+    if pagina.isdigit() is False or int(pagina) < 1:
+        pagina = 1
+    else:
+        pagina = int(pagina)
+
+    return {
+        "ave": ave,
+        "orden": orden,
+        "direccion": direccion,
+        "por_pagina": por_pagina,
+        "pagina": pagina,
+    }
+
+#Rutas.
 @app.route("/")
 def portada():
-    #El texto del mensaje NO viene de la URL, la URL solo trae una clave que
-    #se busca en un diccionario fijo del servidor. Asi entonces, un enlace manipulado
-    #no puede insertar texto ni HTML en la pagina.
     mensaje = MENSAJES.get(request.args.get("ok", ""))
 
-    return render_template("portada.html", activa="portada", mensaje=mensaje)
+    with get_session() as session:
+        ultimos = session.scalars(
+            select(Avistamiento)
+            .options(joinedload(Avistamiento.ave), joinedload(Avistamiento.voluntario))
+            .order_by(Avistamiento.id.desc())
+            .limit(2)
+        ).all()
+
+        return render_template(
+            "portada.html",
+            activa="portada",
+            mensaje=mensaje,
+            ultimos=ultimos,
+        )
 
 @app.route("/voluntario", methods=["GET", "POST"])
 def registro_voluntario():
@@ -219,8 +281,85 @@ def reportar_avistamiento():
 
 @app.route("/avistamientos")
 def listado_avistamientos():
-    return render_template("avistamientos.html", activa="listado")
+    filtros = leer_filtros(request.args)
 
+    with get_session() as session:
+        #Solo se muestran en el filtro las aves que tienen avistamientos.
+        aves_con_avistamientos = session.scalars(
+            select(Ave).join(Avistamiento).distinct().order_by(Ave.nombre)
+        ).all()
+
+        condiciones = []
+        if filtros["ave"] != "todas":
+            condiciones.append(Avistamiento.ave_id == int(filtros["ave"]))
+
+        total = session.scalar(
+            select(func.count()).select_from(Avistamiento).where(*condiciones)
+        )
+
+        total_paginas = max(1, ceil(total / filtros["por_pagina"]))
+        if filtros["pagina"] > total_paginas:
+            filtros["pagina"] = total_paginas
+
+        columna = ORDENES[filtros["orden"]]
+        if filtros["direccion"] == "asc":
+            columna = columna.asc()
+        else:
+            columna = columna.desc()
+
+        avistamientos = session.scalars(
+            select(Avistamiento)
+            .join(Ave)
+            .where(*condiciones)
+            .options(
+                joinedload(Avistamiento.ave),
+                joinedload(Avistamiento.voluntario),
+                selectinload(Avistamiento.registros),
+            )
+            .order_by(columna)
+            .limit(filtros["por_pagina"])
+            .offset((filtros["pagina"] - 1) * filtros["por_pagina"])
+        ).unique().all()
+
+        return render_template(
+            "avistamientos.html",
+            activa="listado",
+            avistamientos=avistamientos,
+            aves_con_avistamientos=aves_con_avistamientos,
+            filtros=filtros,
+            total=total,
+            total_paginas=total_paginas,
+        )
+
+EXTENSIONES_VIDEO = ("mp4", "webm", "mov", "avi")
+
+
+@app.route("/avistamientos/<int:avistamiento_id>")
+def detalle_avistamiento(avistamiento_id):
+    with get_session() as session:
+        avistamiento = session.scalars(
+            select(Avistamiento).where(Avistamiento.id == avistamiento_id)
+        ).first()
+
+        if avistamiento is None:
+            abort(404)
+
+        medios = []
+        for registro in avistamiento.registros:
+            extension = registro.ruta_archivo.rsplit(".", 1)[-1].lower()
+            medios.append({
+                "url": url_for("static", filename="uploads/" + registro.ruta_archivo),
+                "nombre": registro.nombre_archivo,
+                "es_video": extension in EXTENSIONES_VIDEO,
+            })
+
+        return render_template(
+            "detalle-avistamiento.html",
+            activa="listado",
+            avistamiento=avistamiento,
+            medios=medios,
+        )
+    
 
 @app.errorhandler(413)
 def archivo_demasiado_grande(error):
@@ -231,6 +370,15 @@ def archivo_demasiado_grande(error):
         mensaje="Los archivos enviados superan el tamano maximo permitido. "
                 "Cada archivo puede pesar hasta 15 MB.",
     ), 413
+
+@app.errorhandler(404)
+def pagina_no_encontrada(error):
+    return render_template(
+        "error.html",
+        activa="",
+        titulo="Página no encontrada",
+        mensaje="La página o el avistamiento que buscas no existe.",
+    ), 404
 
 if __name__ == "__main__":
     app.run(debug=True)

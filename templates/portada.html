@@ -38,4 +38,28 @@
             </li>
         </ul>
     </section>
+    
+    <section>
+        <h2>Últimos avistamientos informados</h2>
+
+        {% if ultimos %}
+            <ul class="ultimos">
+                {% for avistamiento in ultimos %}
+                    <li>
+                        <h3>{{ avistamiento.ave.nombre }}</h3>
+                        <p>
+                            {{ avistamiento.lugar }},
+                            el {{ avistamiento.fecha_hora.strftime('%d-%m-%Y') }}
+                            a las {{ avistamiento.fecha_hora.strftime('%H:%M') }},
+                            informado por {{ avistamiento.voluntario.nombre }}.
+                        </p>
+                        <a href="{{ url_for('detalle_avistamiento', avistamiento_id=avistamiento.id) }}">Ver detalle</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Todavía no hay avistamientos registrados.</p>
+        {% endif %}
+    </section>
+    
 {% endblock %}
