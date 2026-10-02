@@ -22,6 +22,8 @@
                            {% if activa == 'avistamiento' %}aria-current="page"{% endif %}>Reportar avistamiento</a></li>
                     <li><a href="{{ url_for('listado_avistamientos') }}"
                            {% if activa == 'listado' %}aria-current="page"{% endif %}>Ver avistamientos</a></li>
+                    <li><a href="{{ url_for('estadisticas') }}"
+                           {% if activa == 'estadisticas' %}aria-current="page"{% endif %}>Estadísticas</a></li>       
                 </ul>
             </nav>
         </header>

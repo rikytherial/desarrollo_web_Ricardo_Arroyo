@@ -359,7 +359,15 @@ def detalle_avistamiento(avistamiento_id):
             avistamiento=avistamiento,
             medios=medios,
         )
-    
+
+@app.route("/estadisticas")
+def estadisticas():
+    return render_template(
+        "error.html",
+        activa="estadisticas",
+        titulo="Estadísticas",
+        mensaje="Los indicadores y métricas serán implementados en la siguiente tarea.",
+    )    
 
 @app.errorhandler(413)
 def archivo_demasiado_grande(error):

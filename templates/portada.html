@@ -36,6 +36,14 @@
                 <p>Filtra por tipo de ave y ordena por fecha o lugar, con los resultados presentados por páginas.</p>
                 <a href="{{ url_for('listado_avistamientos') }}">Ver listado</a>
             </li>
+            <li>
+                <h3>Estadísticas</h3>
+                <p>
+                    Revisa indicadores y métricas sobre los avistamientos
+                    informados por la comunidad.
+                </p>
+                <a href="{{ url_for('estadisticas') }}">Ver estadísticas</a>
+            </li>
         </ul>
     </section>
     
@@ -61,5 +69,5 @@
             <p>Todavía no hay avistamientos registrados.</p>
         {% endif %}
     </section>
-    
+
 {% endblock %}
