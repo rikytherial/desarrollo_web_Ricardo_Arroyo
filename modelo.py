@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 
-from sqlalchemy import create_engine, ForeignKey, String, Text, DateTime
+from sqlalchemy import create_engine, ForeignKey, String, Text, DateTime, TIMESTAMP
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
 
 CONNECTION_STRING = (
@@ -73,6 +73,13 @@ class Avistamiento(Base):
         back_populates="avistamiento", cascade="all, delete-orphan"
     )
 
+    comentarios: Mapped[List["Comentario"]] = relationship(
+        back_populates="avistamiento",
+        cascade="all, delete-orphan",
+        order_by="Comentario.fecha",
+    )
+
+
 
 class Registro(Base):
     __tablename__ = "registro"
@@ -83,6 +90,17 @@ class Registro(Base):
     avistamiento_id: Mapped[int] = mapped_column(ForeignKey("avistamiento.id"))
 
     avistamiento: Mapped["Avistamiento"] = relationship(back_populates="registros")
+
+class Comentario(Base):
+    __tablename__ = "comentario"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    nombre: Mapped[str] = mapped_column(String(80))
+    texto: Mapped[str] = mapped_column(String(300))
+    fecha: Mapped[datetime] = mapped_column(TIMESTAMP)
+    avistamiento_id: Mapped[int] = mapped_column(ForeignKey("avistamiento.id"))
+
+    avistamiento: Mapped["Avistamiento"] = relationship(back_populates="comentarios")
 
 
 def get_session():
