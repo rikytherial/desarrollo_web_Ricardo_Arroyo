@@ -62,5 +62,49 @@
         {% endif %}
     </section>
 
+    <section aria-labelledby="titulo-comentarios">
+        <h2 id="titulo-comentarios">Comentarios</h2>
+
+        <div id="lista-comentarios">
+            <p>Cargando comentarios...</p>
+        </div>
+
+        <h3>Agregar un comentario</h3>
+
+        <p class="mensaje-exito" id="mensaje-comentario-exito" hidden>
+            Tu comentario fue agregado correctamente.
+        </p>
+
+        <form id="form-comentario"
+              action="{{ url_for('agregar_comentario', avistamiento_id=avistamiento.id) }}"
+              method="post" novalidate>
+
+            <p class="campo">
+                <label for="nombre-comentarista">Nombre <span class="obligatorio">*</span></label>
+                <input type="text" id="nombre-comentarista" name="nombre" maxlength="50">
+                <small class="ayuda">Entre 3 y 50 caracteres.</small>
+                <span class="error" id="error-nombre-comentarista"></span>
+            </p>
+
+            <p class="campo">
+                <label for="texto-comentario">Comentario <span class="obligatorio">*</span></label>
+                <textarea id="texto-comentario" name="texto" rows="3" cols="40" maxlength="300"></textarea>
+                <small class="ayuda">Al menos 5 caracteres, máximo 300.</small>
+                <span class="error" id="error-texto-comentario"></span>
+            </p>
+
+            <p class="acciones">
+                <button type="submit">Agregar comentario</button>
+            </p>
+
+            <p class="error" id="error-comentario-general"></p>
+        </form>
+    </section>
+
     <p><a href="{{ url_for('listado_avistamientos') }}">Volver al listado</a></p>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/validaciones.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/comentarios.js') }}"></script>
 {% endblock %}
