@@ -391,4 +391,45 @@ def validar_avistamiento(session, form):
     datos["_ave"] = ave
     datos["_fecha_hora"] = fecha_hora
 
+#Caso Comentario.
+LARGO_MINIMO_NOMBRE = 3
+LARGO_MAXIMO_NOMBRE = 50
+LARGO_MINIMO_TEXTO = 5
+LARGO_MAXIMO_TEXTO = 300
+
+
+def validar_comentario(form):
+    """Valida el formulario de un comentario nuevo.
+
+    Los largos del nombre y el minimo del texto son los que fija el enunciado.
+    El maximo del texto lo impone la columna `texto` VARCHAR(300): sin este
+    tope el INSERT falla o MySQL trunca el dato en silencio.
+
+    Retorna (datos, errores) igual que el resto del modulo.
+    """
+    datos = {
+        "nombre": limpiar(form.get("nombre")),
+        "texto": limpiar(form.get("texto")),
+    }
+
+    errores = {}
+
+    if datos["nombre"] == "":
+        errores["nombre"] = "El nombre del comentarista es obligatorio."
+    elif len(datos["nombre"]) < LARGO_MINIMO_NOMBRE:
+        errores["nombre"] = "El nombre debe tener al menos {0} caracteres.".format(
+            LARGO_MINIMO_NOMBRE)
+    elif len(datos["nombre"]) > LARGO_MAXIMO_NOMBRE:
+        errores["nombre"] = "El nombre no puede superar los {0} caracteres.".format(
+            LARGO_MAXIMO_NOMBRE)
+
+    if datos["texto"] == "":
+        errores["texto"] = "El texto del comentario es obligatorio."
+    elif len(datos["texto"]) < LARGO_MINIMO_TEXTO:
+        errores["texto"] = "El comentario debe tener al menos {0} caracteres.".format(
+            LARGO_MINIMO_TEXTO)
+    elif len(datos["texto"]) > LARGO_MAXIMO_TEXTO:
+        errores["texto"] = "El comentario no puede superar los {0} caracteres.".format(
+            LARGO_MAXIMO_TEXTO)
+
     return datos, errores

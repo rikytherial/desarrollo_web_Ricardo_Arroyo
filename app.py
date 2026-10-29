@@ -1,14 +1,14 @@
 from datetime import datetime
 
-from flask import Flask, render_template, request, redirect, url_for, abort
+from flask import Flask, render_template, request, redirect, url_for, abort, jsonify
 from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload, joinedload
 import os
 from math import ceil
 
 from archivos import validar_archivos, guardar_archivos, eliminar_archivos
-from modelo import get_session, Region, Comuna, Voluntario, Ave, Avistamiento, Registro
-from validaciones import validar_voluntario, validar_avistamiento
+from modelo import get_session, Region, Comuna, Voluntario, Ave, Avistamiento, Registro, Comentario
+from validaciones import validar_voluntario, validar_avistamiento, validar_comentario
 
 app = Flask(__name__)
 
@@ -359,6 +359,77 @@ def detalle_avistamiento(avistamiento_id):
             avistamiento=avistamiento,
             medios=medios,
         )
+
+def comentario_a_dict(comentario):
+    """Convierte un Comentario al diccionario que viaja como JSON.
+
+    La fecha se formatea aca y no en el navegador, para no depender de la
+    zona horaria ni del idioma del cliente.
+    """
+    return {
+        "id": comentario.id,
+        "nombre": comentario.nombre,
+        "texto": comentario.texto,
+        "fecha": comentario.fecha.strftime("%d-%m-%Y %H:%M"),
+    }
+
+
+@app.route("/avistamientos/<int:avistamiento_id>/comentarios", methods=["GET"])
+def listar_comentarios(avistamiento_id):
+    """Entrega en JSON los comentarios de un avistamiento."""
+    with get_session() as session:
+        avistamiento = session.scalars(
+            select(Avistamiento).where(Avistamiento.id == avistamiento_id)
+        ).first()
+
+        if avistamiento is None:
+            return jsonify({"error": "El avistamiento no existe."}), 404
+
+        comentarios = session.scalars(
+            select(Comentario)
+            .where(Comentario.avistamiento_id == avistamiento_id)
+            .order_by(Comentario.fecha, Comentario.id)
+        ).all()
+
+        return jsonify({
+            "comentarios": [comentario_a_dict(c) for c in comentarios]
+        })
+
+
+@app.route("/avistamientos/<int:avistamiento_id>/comentarios", methods=["POST"])
+def agregar_comentario(avistamiento_id):
+    """Valida e inserta un comentario. Responde siempre JSON."""
+    with get_session() as session:
+        avistamiento = session.scalars(
+            select(Avistamiento).where(Avistamiento.id == avistamiento_id)
+        ).first()
+
+        if avistamiento is None:
+            return jsonify({"error": "El avistamiento no existe."}), 404
+
+        datos, errores = validar_comentario(request.form)
+
+        if len(errores) > 0:
+            return jsonify({"errores": errores}), 400
+
+        comentario = Comentario(
+            nombre=datos["nombre"],
+            texto=datos["texto"],
+            fecha=datetime.now(),
+            avistamiento_id=avistamiento_id,
+        )
+
+        try:
+            session.add(comentario)
+            session.commit()
+        except Exception as error:
+            session.rollback()
+            app.logger.error("Error al insertar comentario: %s", error)
+            return jsonify({
+                "error": "No fue posible guardar el comentario. Intenta nuevamente."
+            }), 500
+
+        return jsonify({"comentario": comentario_a_dict(comentario)}), 201
 
 @app.route("/estadisticas")
 def estadisticas():
