@@ -1,7 +1,7 @@
-/* Estadisticas: pide los datos al servidor con fetch y dibuja los tres
+/*Estadisticas: pide los datos al servidor con fetch y dibuja los tres
 graficos con Highcharts en el lado del cliente. 
 Luego, si un grafico no tiene datos se avisa en su lugar, porque Highcharts
-dibujaria un recuadro vacio sin explicacion. */
+dibujaria un recuadro vacio sin explicacion.*/
 
 function hayDatos(idContenedor, datos) {
     if (datos.length > 0) {
@@ -12,7 +12,7 @@ function hayDatos(idContenedor, datos) {
     return false;
 }
 
-/* Convierte "dd-mm-aaaa" al timestamp UTC que espera un eje de tipo datetime. */
+/*Convierte "dd-mm-aaaa" al timestamp UTC que espera un eje de tipo datetime.*/
 function aTimestamp(texto) {
     const partes = texto.split("-");
     return Date.UTC(Number(partes[2]), Number(partes[1]) - 1, Number(partes[0]));
@@ -24,10 +24,10 @@ function dibujarPorDia(datos) {
         return;
     }
 
-    /* El eje va como datetime y no como categorias de texto pues con categorias,
+    /*El eje va como datetime y no como categorias de texto, pues con categorias
     cada dia ocupa el mismo ancho y con un rango de meses el eje queda
-    ilegible. Luego como datetime, Highcharts rotula por mes y los puntos quedan
-    ubicados en el tiempo real. */
+    ilegible. Luego, como datetime Highcharts rotula por mes y los puntos quedan
+    ubicados en el tiempo real.*/
     Highcharts.chart("grafico-por-dia", {
         chart: { type: "line" },
         title: { text: null },
@@ -80,9 +80,7 @@ function dibujarPorComuna(datos) {
         return;
     }
 
-    /* En Highcharts "column" son barras verticales y "bar" son horizontales.
-       El enunciado pide las comunas en el eje X y el total en el eje Y, por
-       lo que corresponde "column". */
+    /*En Highcharts "column" son barras verticales y "bar" son horizontales.*/
     Highcharts.chart("grafico-por-comuna", {
         chart: { type: "column" },
         title: { text: null },
