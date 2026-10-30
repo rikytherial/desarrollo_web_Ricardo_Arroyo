@@ -458,3 +458,12 @@ footer {
 #texto-comentario {
     width: auto;
 }
+
+/* Graficos de la pantalla de estadisticas */
+
+.grafico {
+    width: 100%;
+    max-width: 800px;
+    height: 400px;
+    margin-bottom: 2rem;
+}

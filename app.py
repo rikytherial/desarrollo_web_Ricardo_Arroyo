@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import Flask, render_template, request, redirect, url_for, abort, jsonify
 from sqlalchemy import select, func
@@ -431,14 +431,80 @@ def agregar_comentario(avistamiento_id):
 
         return jsonify({"comentario": comentario_a_dict(comentario)}), 201
 
+
+def rellenar_dias(filas):
+    """Completa con 0 los dias sin avistamientos entre el primero y el ultimo.
+    """
+    if len(filas) == 0:
+        return []
+
+    conteos = {}
+    for fila in filas:
+        dia = fila[0]
+        if isinstance(dia, str):
+            dia = datetime.strptime(dia, "%Y-%m-%d").date()
+        conteos[dia] = fila[1]
+
+    primero = min(conteos)
+    ultimo = max(conteos)
+
+    resultado = []
+    actual = primero
+    while actual <= ultimo:
+        resultado.append({
+            "dia": actual.strftime("%d-%m-%Y"),
+            "total": conteos.get(actual, 0),
+        })
+        actual = actual + timedelta(days=1)
+
+    return resultado
+
+
 @app.route("/estadisticas")
 def estadisticas():
-    return render_template(
-        "error.html",
-        activa="estadisticas",
-        titulo="Estadísticas",
-        mensaje="Los indicadores y métricas serán implementados en la siguiente tarea.",
-    )    
+    return render_template("estadisticas.html", activa="estadisticas")
+
+
+@app.route("/estadisticas/datos")
+def estadisticas_datos():
+    """Entrega en JSON los tres conjuntos de datos que dibujan los graficos.
+
+    Las tres agregaciones las hace MySQL con GROUP BY: nunca se traen todas
+    las filas al servidor para contarlas en Python.
+    """
+    with get_session() as session:
+        filas_dia = session.execute(
+            select(
+                func.date(Avistamiento.fecha_hora).label("dia"),
+                func.count().label("total"),
+            )
+            .group_by(func.date(Avistamiento.fecha_hora))
+            .order_by(func.date(Avistamiento.fecha_hora))
+        ).all()
+
+        filas_ave = session.execute(
+            select(Ave.nombre, func.count(Avistamiento.id))
+            .join(Avistamiento, Avistamiento.ave_id == Ave.id)
+            .group_by(Ave.id, Ave.nombre)
+            .order_by(func.count(Avistamiento.id).desc(), Ave.nombre)
+        ).all()
+
+        filas_comuna = session.execute(
+            select(Comuna.nombre, func.count(Voluntario.id))
+            .join(Voluntario, Voluntario.comuna_id == Comuna.id)
+            .group_by(Comuna.id, Comuna.nombre)
+            .order_by(func.count(Voluntario.id).desc(), Comuna.nombre)
+        ).all()
+
+        return jsonify({
+            "avistamientos_por_dia": rellenar_dias(filas_dia),
+            "avistamientos_por_ave": [
+                {"nombre": fila[0], "total": fila[1]} for fila in filas_ave
+            ],
+            "voluntarios_por_comuna": [
+                {"nombre": fila[0], "total": fila[1]} for fila in filas_comuna
+            ],
+        })    
 
 @app.errorhandler(413)
 def archivo_demasiado_grande(error):
