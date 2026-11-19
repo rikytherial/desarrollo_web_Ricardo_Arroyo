@@ -1,0 +1,89 @@
+/* Estilos propios del buscador. Van en un archivo aparte para no tocar el
+   estilos.css que viene de las Tareas 2 y 3: asi la paleta y el encabezado se
+   mantienen identicos entre las dos aplicaciones. */
+
+#patron {
+    width: 100%;
+    max-width: 30rem;
+    padding: 0.5rem 0.7rem;
+    font-size: 1rem;
+    border: 1px solid #b9c4b0;
+    border-radius: 6px;
+}
+
+.total-resultados {
+    margin: 1.2rem 0 0.6rem 0;
+    font-size: 0.9rem;
+    color: #5a6b55;
+}
+
+.tabla-resultados {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    border: 1px solid #b9c4b0;
+    border-radius: 6px;
+}
+
+.tabla-resultados th,
+.tabla-resultados td {
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid #dde3d8;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.tabla-resultados th {
+    background-color: #eef2ea;
+    font-size: 0.9rem;
+}
+
+.tabla-resultados tr:last-child td {
+    border-bottom: none;
+}
+
+/* El destacado del patron buscado. */
+.tabla-resultados mark {
+    background-color: #ffe9a8;
+    color: inherit;
+    padding: 0 0.1rem;
+    border-radius: 3px;
+}
+
+.celda-nota {
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.boton-evaluar,
+.selector-nota {
+    font-size: 0.9rem;
+    padding: 0.3rem 0.6rem;
+    border: 1px solid #b9c4b0;
+    border-radius: 6px;
+    background-color: #f4f7f1;
+    cursor: pointer;
+}
+
+.boton-evaluar:hover {
+    background-color: #e4ebdf;
+}
+
+.error-nota {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.8rem;
+    color: #a4322b;
+}
+
+/* En pantallas angostas la tabla se desplaza en vez de romper el diseño. */
+@media (max-width: 700px) {
+    #resultados {
+        overflow-x: auto;
+    }
+
+    .tabla-resultados {
+        min-width: 38rem;
+    }
+}

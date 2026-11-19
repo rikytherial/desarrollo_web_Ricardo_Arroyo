@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Buscador de avistamientos</title>
+        <link rel="stylesheet" href="/css/estilos.css">
+        <link rel="stylesheet" href="/css/buscador.css">
+    </head>
+    <body>
+
+        <header>
+            <p class="marca"><a href="http://localhost:5000/">Avistamientos de Aves</a></p>
+            <p class="subtitulo">Unión de Ornitólogos de Chile</p>
+
+            <nav aria-label="Navegación principal">
+                <ul>
+                    <li><a href="http://localhost:5000/">Inicio</a></li>
+                    <li><a href="http://localhost:5000/avistamientos">Ver avistamientos</a></li>
+                    <li><a href="/buscador" aria-current="page">Buscar avistamientos</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            <h1>Buscador de avistamientos</h1>
+
+            <p>Escribe para buscar por nombre de ave, nombre de voluntario o
+            comuna. Los resultados aparecen mientras escribes.</p>
+
+            <form id="form-buscador" role="search" action="/api/buscar" method="get">
+                <div class="campo">
+                    <label for="patron">Buscar</label>
+                    <input type="text" id="patron" name="q" maxlength="80"
+                           autocomplete="off" placeholder="Ej: chincol, Ricardo, Rancagua">
+                </div>
+            </form>
+
+            <div id="resultados" aria-live="polite"></div>
+        </main>
+
+        <footer>
+            <p>Desarrollo de Aplicaciones Web - Ricardo Arroyo - Tarea 4.</p>
+        </footer>
+
+        <script src="/js/buscador.js"></script>
+    </body>
+</html>
