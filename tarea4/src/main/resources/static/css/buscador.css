@@ -1,5 +1,5 @@
 /* Estilos propios del buscador. Van en un archivo aparte para no tocar el
-   estilos.css que viene de las Tareas 2 y 3: asi la paleta y el encabezado se
+   estilos.css que viene de las Tareas 2 y 3, asi la paleta y el encabezado se
    mantienen identicos entre las dos aplicaciones. */
 
 #patron {
@@ -42,7 +42,7 @@
     border-bottom: none;
 }
 
-/* El destacado del patron buscado. */
+/*El destacado del patron buscado. */
 .tabla-resultados mark {
     background-color: #ffe9a8;
     color: inherit;
@@ -77,7 +77,7 @@
     color: #a4322b;
 }
 
-/* En pantallas angostas la tabla se desplaza en vez de romper el diseño. */
+/*En pantallas angostas la tabla se desplaza en vez de romper el diseño. */
 @media (max-width: 700px) {
     #resultados {
         overflow-x: auto;

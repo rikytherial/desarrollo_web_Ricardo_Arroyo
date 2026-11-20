@@ -1,4 +1,4 @@
-/* Base de la página, aplicando border box a todo el contenido y definiendo características 
+/*Base de la página, aplicando border box a todo el contenido y definiendo características 
 de elementos generales del body */
 
 * {
@@ -22,7 +22,7 @@ a{
     color: #1b5e20
 }
 
-/* Diseño del encabezado y la navegación */
+/*Diseño del encabezado y la navegación */
 
 header {
     background-color: #1b5e20;
@@ -74,7 +74,7 @@ nav a[aria-current="page"] {
     font-weight: bold;
 }
 
-/* Diseño contenido principal de la página */
+/*Diseño contenido principal de la página */
 
 main {
     max-width: 1000px;
@@ -86,7 +86,7 @@ section{
     margin-bottom: 2.5rem;
 }
 
-/* Tarjetas definidas en la portada */
+/*Tarjetas definidas en la portada */
 
 .tarjetas {
     list-style: none;
@@ -108,7 +108,7 @@ section{
     margin-top: 0;
 }
 
-/* Estilo de los formularios */
+/*Estilo de los formularios */
 
 fieldset {
     border: 1px solid #d6ded0;
@@ -194,7 +194,7 @@ legend {
     font-weight: bold;
 }
 
-/* Diseño de los botones */
+/*Diseño de los botones */
 
 button {
     font-family: inherit;
@@ -230,7 +230,7 @@ button:disabled {
     margin-right: 0.5rem;
 }
 
-/* Filtros del listado */
+/*Filtros del listado */
 
 #form-filtros {
     display: grid;
@@ -246,7 +246,7 @@ button:disabled {
     margin-bottom: 0;
 }
 
-/* Diseño de las tablas */
+/*Diseño de las tablas */
 
 table {
     width: 100%;
@@ -277,9 +277,9 @@ tbody tr:hover {
     background-color: #f5f7f2;
 }
 
-/* Estilo de la paginación */
+/*Estilo de la paginación */
 
-/* Estilo de la paginación */
+/*Estilo de la paginación */
 
 .paginacion {
     display: flex;
@@ -312,7 +312,7 @@ tbody tr:hover {
     border-radius: 4px;
 }
 
-/* Diseño sección Estadisticas */
+/*Diseño sección Estadisticas */
 
 .indicadores {
     list-style: none;
@@ -397,7 +397,7 @@ footer {
     color: #5f6b5a;
 }
 
-/* Adaptación del estilo de la página a distintos tipos de resoluciones */
+/*Adaptación del estilo de la página a distintos tipos de resoluciones */
 @media (max-width: 600px) {
     header {
         padding: 1rem;
@@ -459,7 +459,7 @@ footer {
     width: auto;
 }
 
-/* Graficos de la pantalla de estadisticas */
+/*Graficos de la pantalla de estadisticas */
 
 .grafico {
     width: 100%;
